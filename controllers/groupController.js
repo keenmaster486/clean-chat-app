@@ -148,6 +148,121 @@ router.post('/:id/messages', function(req, res)
 });
 
 
+
+
+
+router.put('/:id/messages', function(req, res)
+{
+	//Edit a message!!
+
+	console.log(`PUT /groups/${req.params.id}/messages`);
+	//Figure out which user is making the message:
+
+	console.log(req.body);
+
+	User.findById(req.body.userId, function(err, foundUser)
+	{
+		if (err) {console.log(err);}
+		else
+		{
+			//Create the message:
+			const newMsg =
+			{
+				userId: foundUser._id,
+				userdisplayname: foundUser.displayname,
+				text: req.body.text,
+				image: req.body.image,
+				video: req.body.video,
+				url: req.body.url
+			};
+			Message.findByIdAndUpdate(req.body.id, newMsg, function(err, updatedMsg)
+			{
+				if (err)
+				{
+					console.log(err);
+					res.json(
+					{
+						success: false
+					});
+				}
+				else
+				{
+					res.json(
+					{
+						success: true,
+						text: updatedMsg.text,
+						id: updatedMsg._id
+					});
+				}
+			});
+		}
+	});
+});
+
+
+
+router.delete('/:id/messages', function(req, res)
+{
+	//Delete a message
+
+	console.log(`DELETE /groups/${req.params.id}/messages`);
+	//Figure out which user is making the message:
+
+	console.log(req.body);
+
+	User.findById(req.body.userId, function(err, foundUser)
+	{
+		if (err) {console.log(err);}
+		else
+		{
+			Message.findByIdAndDelete(req.body.id, function(err, deletedMsg)
+			{
+				if (err)
+				{
+					console.log(err);
+					res.json(
+					{
+						success: false
+					});
+				}
+				else
+				{
+					
+					Group.findById(req.params.id, function(err, foundGroup)
+					{
+						if (err) {console.log(err);}
+						else
+						{
+							//Remove the reference to the message
+							//from the messages array in the group:
+							
+							for (let i = 0; i < foundGroup.messages.length; i++)
+							{
+								if (foundGroup.messages[i] == req.body.id)
+								{
+									foundGroup.messages.splice(i, 1); //remove it
+									console.log("removed a message");
+									break;
+								}
+							};
+
+							foundGroup.save();
+
+							res.json(
+							{
+								success: true,
+							});
+						}
+					});
+				}
+			});
+		}
+	});
+});
+
+
+
+
 router.post('/', async function(req, res)
 {
 	console.log("POST /groups");

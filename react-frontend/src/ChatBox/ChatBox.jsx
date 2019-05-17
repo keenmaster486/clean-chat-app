@@ -25,7 +25,9 @@ class ChatBox extends Component
 			},
 			msgImage: '',
 			imgPreview: false,
-			imgPreviewSrc: ''
+			imgPreviewSrc: '',
+			editMsg: false,
+			msgId: ''
 		};
 		this.getUserInfo();
 		this.getGroupInfo();
@@ -141,6 +143,50 @@ class ChatBox extends Component
 		return msgResponse.id;
 	}
 
+	addEditMsg = async (e) =>
+	{
+		e.preventDefault();
+		const msgText = this.state.msgText;
+		let msgImage = null;
+		if (this.state.msgImage) {msgImage = this.state.msgImage;}
+
+		const newMsg =
+		{
+			userId: this.props.userId,
+			userdisplayname: this.state.displayname,
+			text: msgText,
+			image: msgImage,
+			video: '',
+			url: '',
+			id: this.state.msgId
+		}
+
+		const submitURL = this.props.apiURL + '/groups/' + this.state.currentGroup.id + '/messages';
+
+		let msgResponse = await fetch(submitURL, {
+			method: 'PUT',
+			body: JSON.stringify(newMsg),
+			headers:
+		    {"Content-Type": "application/json",}
+		});
+		msgResponse = await msgResponse.json();
+		console.log(msgResponse);
+		
+		this.setState(
+		{
+			msgText: '',
+			msgImage: '',
+			msgId: ''
+		});
+
+		this.getMessages();
+
+		document.getElementById('msgtextbox').value = '';
+		document.getElementById('imgtextbox').value = '';
+
+		this.toggleEditMsg();
+	}
+
 	addMsg = async (e) =>
 	{
 		e.preventDefault();
@@ -206,6 +252,57 @@ class ChatBox extends Component
 		});
 	}
 
+	handleEditMsgClick = async (index, e) =>
+	{
+		e.preventDefault();
+		this.setState(
+		{
+			msgId: this.state.messages[index]._id,
+			msgText: this.state.messages[index].text,
+			msgImage: this.state.messages[index].image
+		});
+		this.toggleEditMsg();
+	}
+
+	handleDeleteMsgClick = async (index, e) =>
+	{
+		e.preventDefault();
+		//Delete the message:
+		const submitURL = this.props.apiURL + '/groups/' + this.state.currentGroup.id + '/messages';
+
+		const input =
+		{
+			id: this.state.messages[index]._id
+		}
+
+		let msgResponse = await fetch(submitURL, {
+			method: 'DELETE',
+			body: JSON.stringify(input),
+			headers:
+		    {"Content-Type": "application/json",}
+		});
+		msgResponse = await msgResponse.json();
+		console.log(msgResponse);
+
+		//this.getMessages();
+	}
+
+	toggleEditMsg = (e) =>
+	{
+		// if (!this.state.editMsg)
+		// {
+		// 	//if we're OPENING the editing modal:
+		// 	this.setState(
+		// 	{
+
+		// 	});
+		// }
+		this.setState(
+		{
+			editMsg: !this.state.editMsg
+		});
+	}
+
 	render()
 	{
 		return(
@@ -225,9 +322,36 @@ class ChatBox extends Component
 					</ModalFooter>
 				</Modal>
 
+
+				<Modal isOpen={this.state.editMsg} toggle={this.toggleEditMsg} className='editMsg' size='lg'>
+					<ModalHeader>
+						Editing Message
+					</ModalHeader>
+
+					<ModalBody>
+						<form onSubmit={this.addEditMsg}>
+							<textarea id='msgedittextbox' onChange={this.handleChange} rows='5' cols='60' type='text' name='msgText' placeholder='Your message here'>{this.state.msgText}</textarea><br/>
+							<input value={this.state.msgImage} id = 'imgedittextbox' onChange={this.handleChange} name='msgImage' placeholder='You can put an image link here'></input>
+							<button type='submit'>Send</button>
+						</form>
+						{
+							this.state.msgImage != '' &&
+							<div className='imgInsideMsgContainer'><img onClick={this.toggleImgPreview} className='imgInsideMsg' src={this.state.msgImage}/></div>
+						}
+						<GiphySearch handleGifClick={this.handleGifClick}></GiphySearch>
+					</ModalBody>
+
+					<ModalFooter>
+						<button onClick={this.toggleEditMsg}>Close</button>
+					</ModalFooter>
+				</Modal>
+
+
+
 				<div>
 					<h2>{this.props.currentGroup.name}</h2>
 				</div>
+
 				<div className='chatboxcontainer'>
 					<div className='chatbox'>
 						<div className='spancontainer'>
@@ -237,6 +361,12 @@ class ChatBox extends Component
 									return(
 										<span key={index} className={msg.userId == this.props.userId ? 'yourmsg' : 'othermsg'}>
 											<b>{msg.userdisplayname}:</b> {msg.text}
+											{msg.userId == this.props.userId &&
+												<div>
+													<button className="editButton" onClick={this.handleEditMsgClick.bind(null, index)}>Edit</button>
+													<button className="editButton" onClick={this.handleDeleteMsgClick.bind(null, index)}>Delete</button>
+												</div>
+											}
 											{msg.image ? <div className='imgInsideMsgContainer'><img onClick={this.toggleImgPreview} className='imgInsideMsg' src={msg.image}></img></div> : ''}
 										</span>
 									);
@@ -244,21 +374,19 @@ class ChatBox extends Component
 							}
 						</div>
 					</div>
-				<form onSubmit={this.addMsg}>
-					<textarea id='msgtextbox' onChange={this.handleChange} rows='5' cols='67' type='text' name='msgText' placeholder='Your message here'></textarea><br/>
-					<input id = 'imgtextbox' onChange={this.handleChange} name='msgImage' placeholder='You can put an image link here'></input>
-					<button type='submit'>Send</button>
-				</form>
-				{
-					this.state.msgImage != '' &&
-					<div className='imgInsideMsgContainer'><img onClick={this.toggleImgPreview} className='imgInsideMsg' src={this.state.msgImage}/></div>
-				}
+					<form onSubmit={this.addMsg}>
+						<textarea id='msgtextbox' onChange={this.handleChange} rows='5' cols='67' type='text' name='msgText' placeholder='Your message here'></textarea><br/>
+						<input id = 'imgtextbox' onChange={this.handleChange} name='msgImage' placeholder='You can put an image link here'></input>
+						<button type='submit'>Send</button>
+					</form>
+					{
+						this.state.msgImage != '' &&
+						<div className='imgInsideMsgContainer'><img onClick={this.toggleImgPreview} className='imgInsideMsg' src={this.state.msgImage}/></div>
+					}
 				</div>
-
-				<GiphySearch handleGifClick={this.handleGifClick}></GiphySearch>
 				
-
-			</div>
+				<GiphySearch handleGifClick={this.handleGifClick}></GiphySearch>
+		</div>
 
 		);
 	}

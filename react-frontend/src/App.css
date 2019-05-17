@@ -73,6 +73,11 @@ button
 	font-size: 15px;
 }
 
+.smallFont
+{
+	font-size: 10px;
+}
+
 .footer
 {
 	clear: both;

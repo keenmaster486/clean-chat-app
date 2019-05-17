@@ -31,11 +31,18 @@ class SelectGroup extends Component
 	{
 		let groups = await fetch(apiURL + '/groups');
 		groups = await groups.json();
-		this.setState(
+		if (groups[0])
 		{
-			groups: groups,
-			groupId: groups[0].id
-		});
+			this.setState(
+			{
+				groups: groups,
+				groupId: groups[0].id
+			});
+		}
+		else
+		{
+			//do nothing
+		}
 	}
 
 	render()
