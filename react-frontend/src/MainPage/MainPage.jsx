@@ -54,9 +54,18 @@ class MainPage extends Component
 	handleSelectGroup = (input, e) =>
 	{
 		e.preventDefault();
-		//console.log(input);
-		const groupName = input.groups[input.selected].name;
-		const groupId = input.groups[input.selected].id;
+		console.log(input);
+		let groupName;
+		for (let i = 0; i < input.groups.length; i++)
+		{
+			if (input.groups[i].id == input.groupId)
+			{
+				groupName = input.groups[i].name;
+				break;
+			}
+		}
+		//const groupName = input.groups[input.selected].name;
+		const groupId = input.groupId;
 		console.log("Entering group " + groupName + " with id of " + groupId);
 
 		this.setState(

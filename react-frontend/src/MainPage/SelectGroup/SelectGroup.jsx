@@ -8,8 +8,7 @@ class SelectGroup extends Component
 		this.state =
 		{
 			//STUFF
-			groups: [],
-			selected: 0
+			groups: []
 		};
 		this.getOptions(this.props.apiURL);
 	}
@@ -19,6 +18,7 @@ class SelectGroup extends Component
 	handleChange = (e) =>
 	{
 		//e.preventDefault();
+		console.log(e.currentTarget.name + ": " + e.currentTarget.value);
 		this.setState(
 		{
 			[e.currentTarget.name]: e.currentTarget.value
@@ -30,10 +30,11 @@ class SelectGroup extends Component
 	getOptions = async (apiURL) =>
 	{
 		let groups = await fetch(apiURL + '/groups');
-		groups = groups.json();
+		groups = await groups.json();
 		this.setState(
 		{
-			groups: await groups
+			groups: groups,
+			groupId: groups[0].id
 		});
 	}
 
