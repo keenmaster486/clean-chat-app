@@ -1,0 +1,99 @@
+.App {
+	font-family: 'courier', monospace;
+}
+
+.App-logo {
+	animation: App-logo-spin infinite 20s linear;
+	height: 40vmin;
+	pointer-events: none;
+}
+
+.App-header {
+	background-color: #282c34;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	font-size: calc(10px + 2vmin);
+	color: white;
+}
+
+.App-link {
+	color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+
+form
+{
+}
+input
+{
+	font-family: 'courier', monospace;
+	font-size: 15px;
+	min-width: 300px;
+	min-height: 25px;
+	margin: 3px;
+	padding: 2px;
+}
+textarea
+{
+	font-family: 'courier', monospace;
+	font-size: 15px;
+	margin: 10px 0px 0px 0px;
+}
+button
+{
+	font-family: 'courier', monospace;	
+	font-size: 20px;
+	font-weight: bold;
+}
+
+
+
+.notLoggedInContainer
+{
+	text-align: right;
+	float: right;
+	clear: both;
+	margin: 0px 40px 0px 0px;
+}
+
+.medFont
+{
+	font-size: 15px;
+}
+
+.footer
+{
+	clear: both;
+	padding: 30px;
+}
+
+
+.reset
+{
+	max-width: initial;
+	max-height: initial;
+	min-width: initial;
+	min-height: initial;
+	font-family: initial;
+	font-size: initial;
+	color: initial;
+	background-color: initial;
+}
+
+.checkbox
+{
+	width: 25px;
+	height: 25px;
+}

@@ -1,0 +1,30 @@
+.gif
+{
+	width: 200px;
+	border: 5px solid;
+}
+
+.gif:hover
+{
+	color: red;
+}
+
+.gifClicked
+{
+	color: red;
+	opacity: 0.5;
+	border: 20px solid;
+}
+
+.giphySearchContainer
+{
+	background-color: lightblue;
+	margin: 40px;
+}
+
+.poweredBy
+{
+	font-style: italic;
+	font-weight: bold;
+	font-size: 12px;
+}
