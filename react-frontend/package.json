@@ -14,7 +14,6 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "heroku-postbuild": "cd react-frontend && npm install --only=dev && npm install && npm run build"
   },
   "eslintConfig": {
     "extends": "react-app"
