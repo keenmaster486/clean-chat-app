@@ -23,7 +23,7 @@ class App extends Component
 
 	getTest = async () =>
 	{
-		const test = await fetch('http://localhost:9000/');
+		const test = await fetch(this.state.apiURL + '/status');
 		const testjson = await test.json();
 		//console.log(await test.json());
 		console.log(await testjson.text);
