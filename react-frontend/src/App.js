@@ -7,6 +7,7 @@ import Login from './Login/Login';
 
 import MainPage from './MainPage/MainPage';
 
+
 class App extends Component
 {
 	constructor()
