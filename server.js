@@ -39,7 +39,6 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
 
-app.use('/static', express.static(path.join(__dirname, '/react-frontend/build')));
 
 
 
@@ -113,11 +112,14 @@ app.post('/status', function(req, res)
 
 
 
-app.get('/', function(req, res)
+app.get('*', function(req, res)
 {
 	//SEND REACT STUFF
 	res.sendFile(path.join(__dirname+'/react-frontend/build/index.html'));
 });
+
+
+app.use('/static', express.static(path.join(__dirname, '/react-frontend/build')));
 
 
 
