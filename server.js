@@ -39,6 +39,9 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
 
+app.use('/static', express.static(path.join(__dirname, '/react-frontend/build')));
+
+
 
 app.use(session(
 {
