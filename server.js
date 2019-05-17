@@ -27,10 +27,17 @@ if (!port) {port = 9000;}
 
 
 
+app.use(cors(
+{
+	origin: process.env.REACT_ADDRESS,
+	optionsSuccessStatus: 200,
+	credentials: true
+}));
+
+
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
-app.use(cors());
 
 
 app.use(session(
@@ -80,10 +87,7 @@ app.use('/groups', groupController);
 
 
 
-app.use(cors(
-{
-	origin: process.env.REACT_ADDRESS
-}));
+
 
 
 
