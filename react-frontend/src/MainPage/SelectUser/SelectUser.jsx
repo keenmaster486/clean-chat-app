@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-class SelectGroup extends Component
+class SelectUser extends Component
 {
 	constructor(props)
 	{
@@ -8,11 +8,10 @@ class SelectGroup extends Component
 		this.state =
 		{
 			//STUFF
-			groups: []
+			users: []
 		};
 		this.getOptions(this.props.apiURL);
 	}
-
 
 
 	handleChange = (e) =>
@@ -29,16 +28,14 @@ class SelectGroup extends Component
 
 	getOptions = async (apiURL) =>
 	{
-		let groups = await fetch(apiURL + '/groups/foruser/' + this.props.userId);
-		groups = await groups.json();
-		
-
-		if (groups[0])
+		let users = await fetch(apiURL + '/users');
+		users = await users.json();
+		if (users[0])
 		{
 			this.setState(
 			{
-				groups: groups,
-				groupId: groups[0].id
+				users: users,
+				userId: users[0]._id
 			});
 		}
 		else
@@ -51,22 +48,22 @@ class SelectGroup extends Component
 	{
 		return(
 			<div>
-				<form onSubmit={this.props.handleSelectGroup.bind(null, this.state)}>
-					<select type='text' name='groupId' onChange={this.handleChange}>
+				<form onSubmit={this.props.handleSelectUser.bind(null, this.state)}>
+					<select type='text' name='userId' onChange={this.handleChange}>
 						{
-							this.state.groups.map((group, index) =>
+							this.state.users.map((user, index) =>
 							{
 								return(
-									<option key={index} value={group.id}>{group.name}</option>
+									<option key={index} value={user._id}>{user.displayname}</option>
 								);
 							})
 						}
 					</select>
-					<button type='submit'>Enter Group</button>
+					<button type='submit'>Add User</button>
 				</form>
 			</div>
 		);
 	}
 }
 
-export default SelectGroup;
+export default SelectUser;

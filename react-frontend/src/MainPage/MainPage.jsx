@@ -3,6 +3,7 @@ import React, {Component} from 'react';
 import ChatBox from '../ChatBox/ChatBox';
 import NewGroup from './NewGroup/NewGroup';
 import SelectGroup from './SelectGroup/SelectGroup';
+import SelectUser from './SelectUser/SelectUser';
 
 
 class MainPage extends Component
@@ -79,6 +80,36 @@ class MainPage extends Component
 		this.toggleChat();
 	}
 	
+	handleSelectUser = async (input, e) =>
+	{
+		e.preventDefault();
+
+		//make the API call to add the user:
+		const submitURL = this.props.apiURL + '/groups/' + this.state.currentGroup.id + '/adduser';
+
+		let response = await fetch(submitURL, {
+			method: 'PUT',
+			body: JSON.stringify(
+				{
+					userId: input.userId
+				}),
+			headers:
+			{"Content-Type": "application/json",}
+		});
+
+		response = await response.json();
+
+		console.log(response);
+
+		if (!response.success)
+		{
+			alert("error");
+		}
+		else
+		{
+			alert("added user " + input.userId + " to the group")
+		}
+	}
 
 	render()
 	{
@@ -88,7 +119,7 @@ class MainPage extends Component
 					<div>
 						<button className="medFont" onClick={this.toggleChat}>Exit the chat</button>
 						<ChatBox apiURL={this.props.apiURL} currentGroup={this.state.currentGroup} userId={this.props.userId}></ChatBox>
-						
+						<SelectUser apiURL={this.props.apiURL} handleSelectUser={this.handleSelectUser}></SelectUser>
 					</div>
 				:
 					<div>
@@ -97,7 +128,7 @@ class MainPage extends Component
 						-Create a new group<br/>
 						-Enter the chat for a group<br/>
 
-						<SelectGroup apiURL={this.props.apiURL} handleSelectGroup={this.handleSelectGroup}></SelectGroup>
+						<SelectGroup apiURL={this.props.apiURL} handleSelectGroup={this.handleSelectGroup} userId={this.props.userId}></SelectGroup>
 
 						<NewGroup apiURL={this.props.apiURL} userId={this.props.userId}></NewGroup>
 					</div>

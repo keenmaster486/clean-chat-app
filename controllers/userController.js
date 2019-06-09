@@ -12,7 +12,8 @@ router.get('/', function(req, res)
 		else
 		{
 			console.log("GET /users");
-			res.send("GET /users");
+			//res.send("GET /users");
+			res.json(foundUsers);
 		}
 	});
 });

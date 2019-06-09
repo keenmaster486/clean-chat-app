@@ -31,6 +31,48 @@ router.get('/', function(req, res)
 	});
 });
 
+router.get('/foruser/:userId', function(req, res)
+{
+	console.log("GET /groups/foruser/" + req.params.userId);
+	
+	//Return just an array of the names and IDs of the groups for now
+
+	Group.find({}, function(err, foundGroups)
+	{
+		if (err) {console.log(err);}
+		else
+		{
+			const infoToSend = [];
+
+			for (let i = 0; i < foundGroups.length; i++)
+			{
+				console.log(foundGroups[i].users);
+				if (foundGroups[i].users.includes(req.params.userId))
+				{
+					infoToSend.push(
+					{
+						name: foundGroups[i].name,
+						id: foundGroups[i]._id
+					});
+				}
+			}
+			console.log(infoToSend);
+
+			// const infoToSend = foundGroups.map((group) =>
+			// {
+			// 	const singleGroupInfo =
+			// 	{
+			// 		name: group.name,
+			// 		id: group._id
+			// 	};
+			// 	return singleGroupInfo;
+			// });
+			//Actually send the info now:
+			res.json(infoToSend);
+		}
+	});
+});
+
 router.get('/:id', function(req, res)
 {
 	console.log(`GET /groups/${req.params.id}`);
@@ -261,6 +303,50 @@ router.delete('/:id/messages', function(req, res)
 });
 
 
+router.put('/:id/adduser', function(req, res)
+{
+	console.log(`PUT /groups/${req.params.id}/adduser`);
+
+	//Add a user to the group
+
+	Group.findById(req.params.id, function(err, foundGroup)
+	{
+		if (err)
+		{
+			console.log(err);
+			res.json(
+			{
+				success: false
+			});
+		}
+		else
+		{
+			//add the user, but first make sure that user actually exists:
+			console.log("trying to find user");
+			User.findById(req.body.userId, function(err, foundUser)
+			{
+				if (err)
+				{
+					console.log(err);
+					res.json(
+					{
+						success: false
+					});
+				}
+				else
+				{
+					console.log(`Adding user ${foundUser.userdisplayname} to the group ${foundGroup.name}`);
+					foundGroup.users.push(foundUser);
+					foundGroup.save();
+					res.json(
+					{
+						success: true
+					});
+				}
+			});
+		}
+	});
+});
 
 
 router.post('/', async function(req, res)
