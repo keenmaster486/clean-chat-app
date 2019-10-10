@@ -7,6 +7,9 @@ const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const session = require('express-session');
 const mongoose = require('mongoose');
+
+const mongoStore = require('connect-mongo')(session);
+
 const path=require('path');
 
 require('dotenv').config();
@@ -19,7 +22,7 @@ const userController = require('./controllers/userController');
 const authController = require('./controllers/authController');
 const groupController = require('./controllers/groupController');
 
-require('./db/db');
+const dbConnection = require('./db/db');
 
 let port = process.env.PORT;
 if (!port) {port = 9000;}
@@ -41,15 +44,25 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '/react-frontend/build')));
 
 
+const sessionStore = new mongoStore(
+{
+	mongooseConnection: dbConnection,
+	secret: 'skdjfksjf53245ai3245j6giojaifjweo1089n1hg6h5246a24j56knkncvnkkh89u4rhjsdflk'
+});
+
+//console.log(sessionStore);
 
 
 app.use(session(
 {
 	//TODO: what should this secret string be?
 	secret: "avmjlajurialajfrlirjalifjsadligjliajalerjalkejfidsjvlzkcxjvlaisjdifjsaf",
+	store: sessionStore,
 	resave: false, //only save if there has been a change
 	saveUninitialized: false, //only save if we have mutated the session - this is what should be done for logins
 	logged: false,
+	cookie: {httpOnly: false},
+	unset: 'keep'
 }));
 
 
@@ -61,23 +74,48 @@ app.use(session(
 //kept up to date!
 app.use(function(req, res, next)
 {
-	if (req.session.loginAttempt){
-		req.session.loginmessage = null
-	} else {
-		req.session.loginmessage = "Incorrect Username or Password"
-	}
-	if (!req.session.logged)
+	//console.log(req.headers);
+	if (req.headers.authentication)
 	{
-		req.session.messages =
+		sessionStore.get(req.headers.authentication, (err, foundSession) =>
 		{
-			userwelcome: "You are not logged in"
-		}
-		req.session.curuserid = null;
-		req.session.username = null;
-		req.session.usertype = null;
+			if (err)
+			{
+				console.log(err);
+			}
+			else
+			{
+				console.log("Authenticated Request");
+				//console.log(foundSession);
+				req.session.logged = foundSession.logged;
+				req.session.curuserid = foundSession.curuserid;
+				req.session.username = foundSession.username;
+				req.session.usertype = foundSession.usertype;
+				next();
+			}
+		});
 	}
-	res.locals.session = req.session;
-	next();
+	else
+	{
+		console.log("UNAUTHENTICATED REQUEST")
+		if (req.session.loginAttempt){
+			req.session.loginmessage = null
+		} else {
+			req.session.loginmessage = "Incorrect Username or Password"
+		}
+		if (!req.session.logged)
+		{
+			req.session.messages =
+			{
+				userwelcome: "You are not logged in"
+			}
+			req.session.curuserid = null;
+			req.session.username = null;
+			req.session.usertype = null;
+		}
+		res.locals.session = req.session;
+		next();
+	}
 });
 
 

@@ -21,6 +21,7 @@ class ChatBox extends Component
 			{
 				name: '',
 				id: '',
+				type: '',
 				msgLength: 0
 			},
 			msgImage: '',
@@ -50,7 +51,15 @@ class ChatBox extends Component
 	getUserInfo = async () =>
 	{
 		//gets the user info from the Express API and stores it in the state:
-		let userInfo = await fetch(this.props.apiURL + '/users/' + this.props.userId);
+		let userInfo = await fetch(this.props.apiURL + '/users/' + this.props.userId, {
+			method: 'GET',
+			//body: JSON.stringify(data),
+			headers:
+			{
+				"Content-Type": "application/json",
+				"Authentication": this.props.sessionId
+			}
+		});
 		userInfo = await userInfo.json();
 		this.setState(
 		{
@@ -67,7 +76,15 @@ class ChatBox extends Component
 		const oldMsgLength = this.state.currentGroup.msgLength;
 
 		//gets the group info from the Express API and stores it in the state:
-		let groupInfo = await fetch(this.props.apiURL + '/groups/' + this.props.currentGroup.id);
+		let groupInfo = await fetch(this.props.apiURL + '/groups/' + this.props.currentGroup.id, {
+			method: 'GET',
+			//body: JSON.stringify(data),
+			headers:
+			{
+				"Content-Type": "application/json",
+				"Authentication": this.props.sessionId
+			}
+		});
 		groupInfo = await groupInfo.json();
 		this.setState(
 		{
@@ -106,7 +123,15 @@ class ChatBox extends Component
 
 		const submitURL = await this.props.apiURL + '/groups/' + await this.state.currentGroup.id + '/messages/' + await startmsg + '/' + await endmsg;
 
-		let recentMsgs = fetch(await submitURL);
+		let recentMsgs = fetch(await submitURL, {
+			method: 'GET',
+			//body: JSON.stringify(data),
+			headers:
+			{
+				"Content-Type": "application/json",
+				"Authentication": this.props.sessionId
+			}
+		});
 		
 		console.log(await recentMsgs);
 		let test = await recentMsgs;
@@ -136,7 +161,10 @@ class ChatBox extends Component
 			method: 'POST',
 			body: JSON.stringify(newMsg),
 			headers:
-		    {"Content-Type": "application/json",}
+		    {
+		    	"Content-Type": "application/json",
+		    	"Authentication": this.props.sessionId
+		    }
 		});
 		msgResponse = await msgResponse.json();
 		console.log(msgResponse);
@@ -167,7 +195,10 @@ class ChatBox extends Component
 			method: 'PUT',
 			body: JSON.stringify(newMsg),
 			headers:
-		    {"Content-Type": "application/json",}
+		    {
+		    	"Content-Type": "application/json",
+		    	"Authentication": this.props.sessionId
+		    }
 		});
 		msgResponse = await msgResponse.json();
 		console.log(msgResponse);
@@ -272,14 +303,18 @@ class ChatBox extends Component
 
 		const input =
 		{
-			id: this.state.messages[index]._id
+			id: this.state.messages[index]._id,
+			userId: this.props.userId
 		}
 
 		let msgResponse = await fetch(submitURL, {
 			method: 'DELETE',
 			body: JSON.stringify(input),
 			headers:
-		    {"Content-Type": "application/json",}
+		    {
+		    	"Content-Type": "application/json",
+		    	"Authentication": this.props.sessionId
+		    }
 		});
 		msgResponse = await msgResponse.json();
 		console.log(msgResponse);
@@ -348,19 +383,21 @@ class ChatBox extends Component
 
 
 
-				<div>
-					<h2>{this.props.currentGroup.name}</h2>
-				</div>
+				
 
 				<div className='chatboxcontainer'>
+					<div className='chatboxGroupName'>
+						{this.props.currentGroup.name}
+					</div>
 					<div className='chatbox'>
 						<div className='spancontainer'>
 							{
 								this.state.messages.map((msg, index) =>
 								{
 									return(
+										
 										<span key={index} className={msg.userId == this.props.userId ? 'yourmsg' : 'othermsg'}>
-											<b>{msg.userdisplayname}:</b> {msg.text}
+											<font face='courier new'><b>{msg.userdisplayname}:</b></font> {msg.text}
 											{msg.userId == this.props.userId &&
 												<div>
 													<button className="editButton" onClick={this.handleEditMsgClick.bind(null, index)}>Edit</button>
@@ -369,16 +406,24 @@ class ChatBox extends Component
 											}
 											{msg.image ? <div className='imgInsideMsgContainer'><img onClick={this.toggleImgPreview} className='imgInsideMsg' src={msg.image}></img></div> : ''}
 										</span>
+
+										
 									);
 								})
 							}
 						</div>
 					</div>
-					<form onSubmit={this.addMsg}>
-						<textarea id='msgtextbox' onChange={this.handleChange} rows='5' cols='67' type='text' name='msgText' placeholder='Your message here'></textarea><br/>
-						<input id = 'imgtextbox' onChange={this.handleChange} name='msgImage' placeholder='You can put an image link here'></input>
-						<button type='submit'>Send</button>
-					</form>
+					{this.state.currentGroup.id != '' && this.state.currentGroup.id ?
+						<form onSubmit={this.addMsg}>
+							<textarea id='msgtextbox' onChange={this.handleChange} type='text' name='msgText' placeholder='Your message here'></textarea><br/>
+							<input id = 'imgtextbox' onChange={this.handleChange} name='msgImage' placeholder='You can put an image link here'></input>
+							<button id='sendbtn' type='submit'>Send</button>
+						</form>
+					:
+						<div>
+							Enter a group to send messages
+						</div>
+					}
 					{
 						this.state.msgImage != '' &&
 						<div className='imgInsideMsgContainer'><img onClick={this.toggleImgPreview} className='imgInsideMsg' src={this.state.msgImage}/></div>

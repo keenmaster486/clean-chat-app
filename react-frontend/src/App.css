@@ -1,5 +1,6 @@
 .App {
 	font-family: 'courier', monospace;
+	
 }
 
 .App-logo {
@@ -63,9 +64,9 @@ button
 .notLoggedInContainer
 {
 	text-align: right;
-	float: right;
+	float: left;
 	clear: both;
-	margin: 0px 40px 0px 0px;
+	margin: 0px 0px 0px 0px;
 }
 
 .medFont

@@ -14,10 +14,10 @@ class MainPage extends Component
 		this.state =
 		{
 			//STUFF
-			chatOn: false,
+			chatOn: true,
 			currentGroup:
 				{
-					name: '',
+					name: 'Enter a chat',
 					type: '',
 					id: ''
 				}
@@ -77,7 +77,8 @@ class MainPage extends Component
 				id: groupId
 			}
 		});
-		this.toggleChat();
+		//this.toggleChat();
+		this.state.chatOn = true;
 	}
 	
 	handleSelectUser = async (input, e) =>
@@ -94,7 +95,10 @@ class MainPage extends Component
 					userId: input.userId
 				}),
 			headers:
-			{"Content-Type": "application/json",}
+			{
+				"Content-Type": "application/json",
+				"Authentication": this.props.sessionId
+			}
 		});
 
 		response = await response.json();
@@ -115,23 +119,19 @@ class MainPage extends Component
 	{
 		return(
 			<div>
+				<div>
+					
+					<SelectGroup apiURL={this.props.apiURL} handleSelectGroup={this.handleSelectGroup} userId={this.props.userId} sessionId={this.props.sessionId}></SelectGroup>
+
+				</div>
 				{this.state.chatOn ?
 					<div>
-						<button className="medFont" onClick={this.toggleChat}>Exit the chat</button>
-						<ChatBox apiURL={this.props.apiURL} currentGroup={this.state.currentGroup} userId={this.props.userId}></ChatBox>
-						<SelectUser apiURL={this.props.apiURL} handleSelectUser={this.handleSelectUser}></SelectUser>
+						
+						<ChatBox apiURL={this.props.apiURL} currentGroup={this.state.currentGroup} userId={this.props.userId} sessionId={this.props.sessionId}></ChatBox>
+						<SelectUser apiURL={this.props.apiURL} handleSelectUser={this.handleSelectUser} sessionId={this.props.sessionId}></SelectUser>
 					</div>
 				:
-					<div>
-						Here is the main page<br/>
-						Things you can do here (for now):<br/>
-						-Create a new group<br/>
-						-Enter the chat for a group<br/>
-
-						<SelectGroup apiURL={this.props.apiURL} handleSelectGroup={this.handleSelectGroup} userId={this.props.userId}></SelectGroup>
-
-						<NewGroup apiURL={this.props.apiURL} userId={this.props.userId}></NewGroup>
-					</div>
+				null
 				}
 			</div>
 		);
@@ -139,3 +139,6 @@ class MainPage extends Component
 }
 
 export default MainPage;
+
+
+//<NewGroup apiURL={this.props.apiURL} userId={this.props.userId} sessionId={this.props.sessionId}></NewGroup>

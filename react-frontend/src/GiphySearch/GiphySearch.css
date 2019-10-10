@@ -28,3 +28,9 @@
 	font-weight: bold;
 	font-size: 12px;
 }
+
+#gifsearchbox
+{
+	max-width: 100%;
+	min-width: 100%;
+}

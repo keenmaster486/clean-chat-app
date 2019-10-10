@@ -89,7 +89,8 @@ router.post('/', function(req, res) //POST route to create a new user!!
 					//res.send("This username is taken! Try a different one.");
 					res.json(
 					{
-						success: false
+						success: false,
+						message: "This username is taken"
 					});
 				}
 			}
@@ -137,12 +138,23 @@ router.put('/:id', function(req, res)
 {
 	User.findByIdAndUpdate(req.params.id, req.body, function(err, userEdited)
 	{
-		if (err) {console.log(err);}
+		if (err)
+		{
+			console.log(err);
+			res.json(
+			{
+				success: false
+			});
+		}
 		else
 		{
 			console.log(`PUT /users/${req.params.id}`);
-			res.send(`PUT /users/${req.params.id}`);
+			//res.send(`PUT /users/${req.params.id}`);
 			//res.redirect('/users');
+			res.json(
+			{
+				success: true
+			});
 		}
 	});
 });

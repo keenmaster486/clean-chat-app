@@ -29,7 +29,15 @@ class SelectGroup extends Component
 
 	getOptions = async (apiURL) =>
 	{
-		let groups = await fetch(apiURL + '/groups/foruser/' + this.props.userId);
+		let groups = await fetch(apiURL + '/groups/foruser/' + this.props.userId, {
+			method: 'GET',
+			//body: JSON.stringify(data),
+			headers:
+			{
+				"Content-Type": "application/json",
+				"Authentication": this.props.sessionId
+			}
+		});
 		groups = await groups.json();
 		
 

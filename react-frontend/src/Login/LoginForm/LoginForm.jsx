@@ -45,7 +45,7 @@ class LoginForm extends Component
 			<form onSubmit={this.props.handleSubmit.bind(null, this.state)}>
 				<input type='text' name='username' placeholder='Username' onChange={this.handleChange}></input><br/>
 				<input type='password' name='password' placeholder='Password' onChange={this.handleChange}></input><br/>
-				<button type='submit'>Submit</button><br/>
+				<button id='loginsubmitbtn' type='submit'>Submit</button><br/>
 			</form>
 		);
 	}

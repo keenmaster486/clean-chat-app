@@ -6,20 +6,80 @@ const User = require('../models/userSchema');
 
 router.get('/status', function(req, res)
 {
+
+	//console.log(sessionStore);
+
+	console.log("req.session:");
+	console.log(req.session);
+
+	// res.json(
+	// {
+	// 	testSuccess: true,
+	// 	sessionId: req.headers.authentication
+	// });
+
+
 	if (req.session.logged)
 	{
 		//res.redirect('/home')
 		console.log("GET /auth/status");
 		console.log(req.session);
-		res.send("status: logged in");
+		res.json(
+		{
+			success: true,
+			message: "You are logged in"
+		});
 	}
 	else
 	{
 		//res.render('auth/login.ejs')
 		console.log("GET /auth/status");
 		console.log(req.session);
-		res.send("status: not logged in");
+		res.json(
+		{
+			success: true,
+			message: "You are not logged in"
+		});
 	}
+
+	//Try to recover the session:
+	// req.session.store.get(req.body.sessionId, (err, foundSession) =>
+	// {
+	// 	if (err)
+	// 	{
+	// 		console.log(err);
+	// 		res.json(
+	// 		{
+	// 			success: false,
+	// 			message: "Your session is either expired or you never logged in"
+	// 		});
+	// 	}
+	// 	else
+	// 	{
+	// 		if (foundSession.logged)
+	// 		{
+	// 			//res.redirect('/home')
+	// 			console.log("GET /auth/status");
+	// 			console.log(foundSession);
+	// 			res.json(
+	// 			{
+	// 				success: true,
+	// 				message: "You are logged in"
+	// 			});
+	// 		}
+	// 		else
+	// 		{
+	// 			//res.render('auth/login.ejs')
+	// 			console.log("GET /auth/status");
+	// 			console.log(foundSession);
+	// 			res.json(
+	// 			{
+	// 				success: true,
+	// 				message: "You are not logged in"
+	// 			});
+	// 		}
+	// 	}
+	// });
 });
 
 router.post('/login', function(req, res)
@@ -69,7 +129,8 @@ router.post('/login', function(req, res)
 				//We'll go ahead and send the current user id to the client side:
 				res.json({
 					success: true,
-					userId: foundUser._id
+					userId: foundUser._id,
+					sessionId: req.sessionID
 				});
 			}
 			else
@@ -93,39 +154,59 @@ router.get('/logout', function(req, res)
 	if (!req.session.username)
 	{
 		//res.redirect('/home')
-		res.send("already logged out");
+		res.json(
+		{
+			success: false,
+			message: "Already logged out"
+		});
 	}
 	else
 	{
 		//END the session:
+		console.log("Attempting to log out for user " + req.session.username)
 		const tempusername = req.session.username;
 		req.session.logged = false;
 		req.session.usertype = null;
-		req.session.messages.userwelcome = "You are not logged in";
+		req.session.username = null;
+		//req.session.messages.userwelcome = "You are not logged in";
 		req.session.curuserid = null;
 		req.session.destroy();
 		console.log(`${tempusername} is now logged out`);
 		//res.redirect('/home')
-		res.send("logged out");
-	}
-});
-
-router.get('/delete', function(req, res)
-{
-	if (!req.session.username)
-	{
-		//res.redirect('/auth/login')
-		res.send("not logged in, don't do this");
-	}
-	else
-	{
-		User.findOne({username: req.session.username}, function(err, foundUser)
+		//res.send("logged out");
+		res.json(
 		{
-			//res.render('user/delete.ejs', {user: foundUser});
-			res.send("use a DELETE request to delete a user");
+			success: true,
+			message: "You are now logged out"
 		});
 	}
 });
+
+// router.get('/delete', function(req, res)
+// {
+// 	if (!req.session.username)
+// 	{
+// 		//res.redirect('/auth/login')
+// 		res.json(
+// 		{
+// 			success: false,
+// 			message: "Not logged in; don't do this!"
+// 		});
+// 	}
+// 	else
+// 	{
+// 		User.findOne({username: req.session.username}, function(err, foundUser)
+// 		{
+// 			//res.render('user/delete.ejs', {user: foundUser});
+// 			//res.send("use a DELETE request to delete a user");
+// 			res.json(
+// 			{
+// 				success: false,
+// 				message: "Use a DELETE request to delete a user"
+// 			});
+// 		});
+// 	}
+// });
 
 router.delete('/delete', function(req, res)
 {
@@ -136,7 +217,12 @@ router.delete('/delete', function(req, res)
 	if (!req.session.username)
 	{
 		//res.redirect('/auth/login')
-		res.send("not logged in, cannot delete user");
+		//res.send("not logged in, cannot delete user");
+		res.json(
+		{
+			success: false,
+			message: "Not logged in; cannot delete user!"
+		});
 	}
 	else //User is logged in
 	{
@@ -154,17 +240,25 @@ router.delete('/delete', function(req, res)
 					{
 						req.session.destroy();
 						//res.redirect('/home')
-						res.send("deleted user successfully");
+						//res.send("deleted user successfully");
+						res.json(
+						{
+							success: true,
+							message: "Deleted user successfully"
+						});
 					});
 				}
 				else
 				{
 					console.log("Delete user failed; incorrect password!");
-					res.send("Incorrect password - your user account was NOT deleted");
+					res.json(
+					{
+						success: false,
+						message: "Incorrect password - your user account was NOT deleted"
+					});
 				}
 			}
 		});
-
 	}
 })
 
