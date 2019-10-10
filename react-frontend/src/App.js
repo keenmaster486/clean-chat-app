@@ -15,7 +15,7 @@ class App extends Component
 		super();
 		this.state =
 		{
-			apiURL: process.env.REACT_APP_BACKEND_ADDRESS,
+			apiURL: 'http://localhost:9000',			//process.env.REACT_APP_BACKEND_ADDRESS,
 			loggedIn: {success: false}
 		}
 		this.getTest();
