@@ -18,8 +18,7 @@ This project was created by Collin Brockway, and is licensed under the following
 
 MIT License
 
-Copyright (C) Collin Brockway
-Copyright (C) Facebook, Inc. and its affiliates. (React)
+Copyright (C) Collin Brockway, and (C) Facebook, Inc. and its affiliates (React)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
