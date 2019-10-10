@@ -6,6 +6,8 @@ This is a chat app that is intended to be, once and for all, the
 
 You can see the current status of the app here: http://clean-chat-app.herokuapp.com
 
+Try the test user (username: testuser, password: pass)
+
 Since the app is under active development, the functionality of the app will change frequently. Anything you do on the app right now may be destroyed as I push updates and nuke the database here and there.
 
 Here's a list of what this chat app will be:
