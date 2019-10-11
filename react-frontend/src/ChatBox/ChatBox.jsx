@@ -22,6 +22,7 @@ class ChatBox extends Component
 				name: '',
 				id: '',
 				type: '',
+				otherUserName: '',
 				msgLength: 0
 			},
 			msgImage: '',
@@ -86,13 +87,45 @@ class ChatBox extends Component
 			}
 		});
 		groupInfo = await groupInfo.json();
+
+		// if (groupInfo.type == 'dm' && this.state.currentGroup.otherUserName != '')
+		// {
+		// 	groupInfo.users.forEach(async (user, index) =>
+		// 	{
+		// 		if (user._id != this.props.userId)
+		// 		{
+		// 			//console.log(user.displayname);
+		// 			let userInfo = await fetch(this.props.apiURL + '/users/' + user._id, {
+		// 				method: 'GET',
+		// 				//body: JSON.stringify(data),
+		// 				headers:
+		// 				{
+		// 					"Content-Type": "application/json",
+		// 					"Authentication": this.props.sessionId
+		// 				}
+		// 			});
+
+		// 			userInfo = await userInfo.json();
+
+		// 			this.setState(
+		// 			{
+		// 				currentGroup:
+		// 				{
+		// 					otherUserName: userInfo.displayname
+		// 				}
+		// 			});
+		// 		}
+		// 	});
+		// }
+
 		this.setState(
 		{
 			currentGroup:
 			{
 				name: await groupInfo.name,
 				id: await groupInfo.id,
-				msgLength: await groupInfo.msgLength
+				msgLength: await groupInfo.msgLength,
+				otherUserName: this.props.currentGroup.otherUserName
 			}
 		});
 		const msgLength = await groupInfo.msgLength;
@@ -387,7 +420,11 @@ class ChatBox extends Component
 
 				<div className='chatboxcontainer'>
 					<div className='chatboxGroupName'>
-						{this.props.currentGroup.name}
+						{this.state.currentGroup.type == 'dm' ?
+							this.state.currentGroup.name
+						:
+							this.state.currentGroup.otherUserName
+						}
 					</div>
 					<div className='chatbox'>
 						<div className='spancontainer'>

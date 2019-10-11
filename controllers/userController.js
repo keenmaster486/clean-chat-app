@@ -108,11 +108,90 @@ router.get('/:id', function(req, res)
 		{
 			console.log(`GET /users/${req.params.id}`);
 			//res.send(`GET /users/${req.params.id}`);
-			res.json(foundUser);
+			res.json(
+			{
+				_id: foundUser._id,
+				username: foundUser.username,
+				usertype: foundUser.usertype,
+				displayname: foundUser.displayname
+			});
 		}
 	});
 });
 
+router.get('/username/:username', (req, res) =>
+{
+	User.findOne({username: req.params.username}, (err, foundUser) =>
+	{
+		if (err)
+		{
+			console.log(err);
+		}
+		else
+		{
+			if (foundUser)
+			{
+				res.json(
+				{
+					_id: foundUser._id,
+					username: foundUser.username,
+					displayname: foundUser.displayname
+				});
+			}
+			else
+			{
+				res.json(
+				{
+					_id: null,
+					username: null,
+					displayname: null
+				});
+			}
+		}
+	});
+});
+
+router.get('/:id/contacts', function(req, res)
+{
+	if (req.session.curuserid != req.params.id)
+	{
+		res.json(
+		{
+			success: false,
+			message: "You must be logged in as this user to get the user info"
+		});
+	}
+	else
+	{
+		User.findById(req.params.id).populate('contacts').exec((err, foundUser)=>
+		{
+			if (err) {console.log(err);}
+			else
+			{
+				console.log(`GET /users/${req.params.id}/contacts`);
+				//res.send(`GET /users/${req.params.id}`);
+				res.json(foundUser.contacts);
+			}
+		});
+	}
+});
+
+// router.post('/:id/contacts', (req, res) =>
+// {
+// 	//Add a contact to the user's contacts list:
+
+// 	User.findById(req.body.userIdToAdd, (err, foundUser1) =>
+// 	{
+// 		if (foundUser)
+// 		{
+// 			//We found the user we want to add, so do it!
+// 			User.findById(req.session.curuserid, (err, foundUser2) =>
+// 			{
+
+// 			});
+// 		}
+// 	});
+// });
 
 router.get('/:id/edit', function(req, res)
 {

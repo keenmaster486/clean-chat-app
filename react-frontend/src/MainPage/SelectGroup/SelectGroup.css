@@ -1,0 +1,54 @@
+.selectGroupContainer
+{
+	border: 1px solid black;
+	padding: 10px;
+}
+
+.groupTabsContainer
+{
+	margin: 20px;
+	padding: 20px;
+	text-align: center;
+	border: 2px solid grey;
+	border-radius: 20px;
+}
+
+.singleGroupTab
+{
+	border: 2px solid black;
+	border-radius: 10px;
+	margin: 20px;
+	padding: 14px;
+}
+
+.singleGroupTab:hover
+{
+	background-color: lightgrey;
+}
+
+.groupsContainer
+{
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+	margin: 20px;
+}
+
+.singleGroup
+{
+	
+	margin: 10px;
+	padding: 10px;
+	border: 2px solid black;
+	border-radius: 10px;
+}
+
+.singleGroup:hover
+{
+	background-color: lightgrey;
+}
+
+.addContactForm
+{
+	margin: 10px 0px 30px 0px;
+}

@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
+const mongoose = require('mongoose');
+
 const Group = require('../models/groupSchema');
 const User = require('../models/userSchema');
 const Message = require('../models/messageSchema');
@@ -69,7 +71,7 @@ router.get('/foruser/:userId', function(req, res)
 				for (let i = 0; i < foundGroups.length; i++)
 				{
 					console.log(foundGroups[i].users);
-					if (foundGroups[i].users.includes(req.params.userId))
+					if (foundGroups[i].users.includes(req.params.userId) && foundGroups[i].type != 'dm')
 					{
 						infoToSend.push(
 						{
@@ -132,11 +134,117 @@ router.get('/:id', function(req, res)
 					//extra info not directly in the group schema:
 					msgLength: foundGroup.messages.length
 				};
+				if (foundGroup.type == 'dm')
+				{
+					groupInfo.users = foundGroup.users;
+				}
 				res.json(groupInfo);
 			}
 		});
 	}
 });
+
+
+router.get('/dms/:user1_id/:user2_id', (req, res) =>
+{
+	//Returns the group info for DMs for two users
+	//Or creates it if it doesn't already exist and then returns the info
+
+	console.log("Getting information for a DM group between two users");
+
+	User.findById(req.params.user1_id, (err, foundUser1) =>
+	{
+		User.findById(req.params.user2_id, (err, foundUser2) =>
+		{
+			if (foundUser1 && foundUser2)
+			{
+				Group.findOne({users:{$all: [mongoose.Types.ObjectId(req.params.user1_id), mongoose.Types.ObjectId(req.params.user2_id)]}, type: 'dm'}, (err, foundGroup) =>
+				{
+					console.log("foundGroup:");
+					console.log(foundGroup);
+					if (!foundGroup)
+					{
+						//uh oh it doesn't exist, create it!
+						//construct the object for the group:
+
+						console.log("Users found but DM group not found");
+
+						const newDmGroup =
+						{
+							users: [req.params.user1_id, req.params.user2_id],
+							admins: [req.params.user1_id, req.params.user2_id],
+							type: 'dm',
+							name: 'DM between two users',
+							categories: [],
+							topic: 'dms',
+							private: true,
+							joinpolicy: 2,
+							allowinvite: false
+						};
+
+						console.log("Creating new group:");
+						console.log(newDmGroup);
+
+						// res.json(
+						// {
+						// 	success: "true",
+						// 	message: "Would create new group"
+						// });
+
+						Group.create(newDmGroup, (err, createdGroup) =>
+						{
+							if (err)
+							{
+								console.log(err);
+							}
+							else
+							{
+								if (createdGroup.users)
+								{
+									//it worked! Send the info:
+									res.json(createdGroup);
+								}
+								else
+								{
+									//Uh oh something went wrong
+									res.json(
+									{
+										success: false
+									});
+								}
+							}
+						});
+
+						//Add the users to each others' contacts lists:
+
+						foundUser1.contacts.push(foundUser2._id);
+						foundUser2.contacts.push(foundUser1._id);
+						foundUser1.save();
+						foundUser2.save();
+					}
+					else
+					{
+						//it does exist! Send the info:
+						console.log("The DM group exists!");
+						res.json(foundGroup);
+					}
+				});
+			}
+			else
+			{
+				console.log("One or both of those users doesn't exist")
+				res.json(
+				{
+					success: false,
+					message: "One or both of those users does not exist"
+				});
+			}
+		});
+	})
+
+	
+});
+
 
 
 router.get('/:id/messages/:startmsg/:endmsg', function(req, res)
@@ -506,7 +614,7 @@ router.post('/', async function(req, res)
 	{
 		Group.create(await newGroup, function(err, createdGroup)
 		{
-			if (err) 
+			if (err)
 			{
 				console.log(err);
 				res.json(

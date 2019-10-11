@@ -5,6 +5,9 @@ import NewGroup from './NewGroup/NewGroup';
 import SelectGroup from './SelectGroup/SelectGroup';
 import SelectUser from './SelectUser/SelectUser';
 
+import {Modal, ModalHeader, ModalBody, ModalFooter} from 'reactstrap';
+
+import "./MainPage.css";
 
 class MainPage extends Component
 {
@@ -15,6 +18,7 @@ class MainPage extends Component
 		{
 			//STUFF
 			chatOn: true,
+			selectGroupModal: false,
 			currentGroup:
 				{
 					name: 'Enter a chat',
@@ -52,33 +56,40 @@ class MainPage extends Component
 		}
 	}
 
-	handleSelectGroup = (input, e) =>
+	handleSelectGroup = (groupId, contactDisplayName) =>
 	{
-		e.preventDefault();
-		console.log(input);
-		let groupName;
-		for (let i = 0; i < input.groups.length; i++)
-		{
-			if (input.groups[i].id == input.groupId)
-			{
-				groupName = input.groups[i].name;
-				break;
-			}
-		}
+		//e.preventDefault();
+		//console.log(input);
+		// let groupName;
+		// for (let i = 0; i < input.privateGroups.length; i++)
+		// {
+		// 	if (input.privateGroups[i].id == input.groupId)
+		// 	{
+		// 		groupName = input.privateGroups[i].name;
+		// 		break;
+		// 	}
+		// }
 		//const groupName = input.groups[input.selected].name;
-		const groupId = input.groupId;
-		console.log("Entering group " + groupName + " with id of " + groupId);
-
+		//const groupId = input.groupId;
+		//console.log("Entering group " + groupName + " with id of " + groupId);
+		
 		this.setState(
 		{
 			currentGroup:
 			{
-				name: groupName,
-				id: groupId
+				//name: groupName,
+				id: groupId,
+				otherUserName: contactDisplayName
 			}
 		});
 		//this.toggleChat();
-		this.state.chatOn = true;
+		//this.state.chatOn = true;
+		//this.state.selectGroupModal = false;
+		this.setState(
+		{
+			chatOn: true,
+			selectGroupModal: false
+		});
 	}
 	
 	handleSelectUser = async (input, e) =>
@@ -115,13 +126,37 @@ class MainPage extends Component
 		}
 	}
 
+	toggleSelectGroup = () =>
+	{
+		this.setState(
+		{
+			selectGroupModal: !this.state.selectGroupModal
+		});
+	}
+
 	render()
 	{
 		return(
 			<div>
 				<div>
 					
-					<SelectGroup apiURL={this.props.apiURL} handleSelectGroup={this.handleSelectGroup} userId={this.props.userId} sessionId={this.props.sessionId}></SelectGroup>
+					<button onClick={this.toggleSelectGroup} className="switchChatButton">Switch chat</button>
+
+					<Modal isOpen={this.state.selectGroupModal} toggle={this.toggleSelectGroup} className='selectGroupModal' size='lg'>
+						<ModalHeader>
+							Select Chat
+						</ModalHeader>
+
+						<ModalBody>
+							<SelectGroup apiURL={this.props.apiURL} handleSelectGroup={this.handleSelectGroup} userId={this.props.userId} sessionId={this.props.sessionId}></SelectGroup>
+						</ModalBody>
+
+						<ModalFooter>
+							<button onClick={this.toggleSelectGroup}>Close</button>
+						</ModalFooter>
+					</Modal>
+
+
 
 				</div>
 				{this.state.chatOn ?
