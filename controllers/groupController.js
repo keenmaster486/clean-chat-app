@@ -13,6 +13,8 @@ router.get('/', function(req, res)
 	
 	//Return just an array of the names and IDs of the groups for now
 
+	//OK, this returns only an array of the public groups!
+
 	if (!req.session.logged)
 	{
 		//disallow!
@@ -29,14 +31,20 @@ router.get('/', function(req, res)
 			if (err) {console.log(err);}
 			else
 			{
-				const infoToSend = foundGroups.map((group) =>
+				const infoToSend = [];
+				//console.log(foundGroups);
+				foundGroups.forEach((group, index) =>
 				{
-					const singleGroupInfo =
+					if (!group.private)
 					{
-						name: group.name,
-						id: group._id
-					};
-					return singleGroupInfo;
+						//console.log("found a public group to send")
+						const singleGroupInfo =
+						{
+							name: group.name,
+							id: group._id
+						};
+						infoToSend.push(singleGroupInfo);
+					}
 				});
 				//Actually send the info now:
 				res.json(infoToSend);
@@ -76,7 +84,8 @@ router.get('/foruser/:userId', function(req, res)
 						infoToSend.push(
 						{
 							name: foundGroups[i].name,
-							id: foundGroups[i]._id
+							id: foundGroups[i]._id,
+							private: foundGroups[i].private
 						});
 					}
 				}
@@ -125,6 +134,7 @@ router.get('/:id', function(req, res)
 				{
 					name: foundGroup.name,
 					id: foundGroup._id,
+					categories: foundGroup.categories,
 					topic: foundGroup.topic,
 					type: foundGroup.type,
 					private: foundGroup.private,
@@ -138,6 +148,43 @@ router.get('/:id', function(req, res)
 				{
 					groupInfo.users = foundGroup.users;
 				}
+				res.json(groupInfo);
+			}
+		});
+	}
+});
+
+
+
+
+
+router.get('/:id/users', function(req, res)
+{
+	console.log(`GET /groups/${req.params.id}/users`);
+
+	//find the group and add the info to the object:
+
+
+	if (!req.session.logged)
+	{
+		res.json(
+		{
+			success: false,
+			message: "Log in first!"
+		});
+	}
+	else
+	{
+		Group.findById(req.params.id).populate('users').exec(function(err, foundGroup)
+		{
+			if (err) {console.log(err);}
+			else
+			{
+				const groupInfo =
+				{
+					users: foundGroup.users
+				};
+				
 				res.json(groupInfo);
 			}
 		});
@@ -217,8 +264,18 @@ router.get('/dms/:user1_id/:user2_id', (req, res) =>
 
 						//Add the users to each others' contacts lists:
 
-						foundUser1.contacts.push(foundUser2._id);
-						foundUser2.contacts.push(foundUser1._id);
+						foundUser1.contacts.push(
+						{
+							_id: foundUser2._id,
+							username: foundUser2.username,
+							displayname: foundUser2.displayname
+						});
+						foundUser2.contacts.push(
+						{
+							_id: foundUser1._id,
+							username: foundUser1.username,
+							displayname: foundUser1.displayname
+						});
 						foundUser1.save();
 						foundUser2.save();
 					}
@@ -528,18 +585,32 @@ router.put('/:id/adduser', function(req, res)
 						console.log(err);
 						res.json(
 						{
-							success: false
+							success: false,
+							message: "Unknown error"
 						});
 					}
 					else
 					{
 						console.log(`Adding user ${foundUser.userdisplayname} to the group ${foundGroup.name}`);
-						foundGroup.users.push(foundUser);
-						foundGroup.save();
-						res.json(
+						if (foundGroup.users.includes(foundUser._id))
 						{
-							success: true
-						});
+							//oops, user is already in the group
+							res.json(
+							{
+								success: false,
+								message: "User already in group!"
+							});
+						}
+						else
+						{
+							foundGroup.users.push(foundUser);
+							foundGroup.save();
+							res.json(
+							{
+								success: true,
+								message: "User added to group"
+							});
+						}
 					}
 				});
 			}

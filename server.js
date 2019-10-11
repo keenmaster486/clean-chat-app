@@ -43,6 +43,7 @@ app.use(bodyParser.json());
 
 app.use(express.static(path.join(__dirname, '/react-frontend/build')));
 
+app.use(express.static('./public'));
 
 const sessionStore = new mongoStore(
 {

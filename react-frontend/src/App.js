@@ -2,10 +2,14 @@ import React, {Component} from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+import NavBar from './NavBar/NavBar';
+
 import NewUser from './NewUser/NewUser';
 import Login from './Login/Login';
 
 import MainPage from './MainPage/MainPage';
+
+import {Modal, ModalHeader, ModalBody, ModalFooter} from 'reactstrap';
 
 
 class App extends Component
@@ -20,10 +24,21 @@ class App extends Component
 			{
 				success: false,
 				sessionId: ''
-			}
+			},
+			aboutModal: false,
+			accountSettings: false
 		}
 		this.getTest();
 		//this.loginStatus();
+	}
+
+	handleChange = (e) =>
+	{
+		e.preventDefault();
+		this.setState(
+		{
+			[e.currentTarget.name]: e.currentTarget.value
+		});
 	}
 
 	getTest = async () =>
@@ -129,9 +144,15 @@ class App extends Component
 		{
 			alert("error");
 		}
+		else
+		{
+			this.getUserInfo();
+		}
 
 		//const success = await loginResponse.success;
 		//if (!success) {alert("error");}
+
+
 	}
 
 
@@ -164,11 +185,155 @@ class App extends Component
 		});
 	}
 
+
+	getUserInfo = async () =>
+	{
+		//gets the user info from the Express API and stores it in the state:
+		console.log("Getting user info in app.js");
+		let userInfo = await fetch(this.state.apiURL + '/users/' + this.state.loggedIn.userId, {
+			method: 'GET',
+			//body: JSON.stringify(data),
+			headers:
+			{
+				"Content-Type": "application/json",
+				"Authentication": this.state.loggedIn.sessionId
+			}
+		});
+		userInfo = await userInfo.json();
+		console.log(await userInfo);
+		this.setState(
+		{
+			username: await userInfo.username,
+			displayname: await userInfo.displayname,
+			editUserDisplayname: await userInfo.displayname
+		});
+	}
+
+
+	handleEditAccountSettings = async (e) =>
+	{
+		e.preventDefault();
+		//console.log("handleSubmit on NewUser was called");
+		//console.log(input);
+
+
+		//here's where we make the POST request to create a new user:
+
+		let editUserResponse = await fetch(this.state.apiURL + '/users/' + this.state.loggedIn.userId, {
+			method: 'PUT',
+			body: JSON.stringify(
+				{
+					displayname: this.state.editUserDisplayname
+				}),
+		    headers:
+		    {
+		    	"Content-Type": "application/json",
+		    	"Authentication": this.state.loggedIn.sessionId
+		    }
+		});
+
+		//console.log(await newUserResponse.json());
+
+		editUserResponse = await editUserResponse.json();
+		
+		if (await editUserResponse.success)
+		{
+			alert("Edited account settings successfully");
+		}
+		else
+		{
+			alert("error");
+		}
+		this.getUserInfo();
+	}
+
+	toggleAboutModal = () =>
+	{
+		this.setState(
+		{
+			aboutModal: !this.state.aboutModal
+		});
+	}
+
+	toggleAccountSettings = () =>
+	{
+		this.setState(
+		{
+			accountSettings: !this.state.accountSettings
+		});
+	}
+
 	render()
 	{
 		return (
 			<div className="App">
-				<h4><i><b>CleanChat</b></i></h4>
+				
+
+				<Modal isOpen={this.state.aboutModal} toggle={this.toggleAboutModal} className='aboutModal' size='lg'>
+					<ModalHeader>
+						About
+					</ModalHeader>
+
+					<ModalBody>
+						This is a chat app that is intended to be, once and for all, the<br/><br/>
+
+						ONE CHAT APP TO RULE THEM ALL<br/><br/>
+
+						Try the test user or make your own!(username: testuser, password: pass)<br/><br/>
+
+						Since the app is under active development, the functionality of the app will change frequently. Anything you do on the app right now may be destroyed as I push updates and nuke the database here and there.<br/><br/>
+
+						Here's a list of what this chat app will be:<br/><br/>
+
+						Open source<br/>
+						Openly documented<br/>
+						Usable in everyday life for all your chat app needs, that you may have previously used several discrete apps for, all with their advantages and disadvantages<br/>
+						Cross-platform: This is intended to be the most cross-platform chat app ever made. Users are encouraged to build their own clients using the documentation and source code provided.<br/>
+						DMs, group messaging, and voice and video chat included and working on all platforms<br/><br/>
+						
+						Right now the backend is built in Node.js with Express, and the web frontend using React. Once proper functionality is achieved, more clients will be built for other platforms and systems, including smartphones.
+					</ModalBody>
+
+					<ModalFooter>
+						<button onClick={this.toggleAboutModal}>Close</button>
+					</ModalFooter>
+				</Modal>
+
+
+				<Modal isOpen={this.state.accountSettings} toggle={this.toggleAccountSettings} className='accountSettings' size='lg'>
+					<ModalHeader>
+						Account Settings
+					</ModalHeader>
+
+					<ModalBody>
+						{this.state.loggedIn.success ?
+							<div>
+								<div>
+									Account Settings<br/>
+									The only thing you can change here right now is your display name.<br/>
+								</div>
+								<br/>
+								<form>
+									Display Name:<br/>
+									<input name='editUserDisplayname' placeholder="Display Name" value={this.state.editUserDisplayname} onChange={this.handleChange}></input>
+									<button onClick={this.handleEditAccountSettings}>Submit</button>
+								</form>
+							</div>
+						:
+							<div>You are logged out! Log in to access your account settings.</div>
+						}
+					</ModalBody>
+
+					<ModalFooter>
+						<button onClick={this.toggleAccountSettings}>Close</button>
+					</ModalFooter>
+				</Modal>
+
+				
+
+
+
+				<NavBar apiURL={this.state.apiURL} toggleAboutModal={this.toggleAboutModal} toggleAccountSettings={this.toggleAccountSettings}></NavBar>
 				{this.state.loggedIn.success ?
 					(
 						<div>

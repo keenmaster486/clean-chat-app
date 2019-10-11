@@ -9,10 +9,10 @@ class NewGroupForm extends Component
 		{
 			//STUFF
 			name: '',
-			topic: '',
+			topic: 'none',
 			type: 'std',
-			category: '',
-			allowinvite: 'off',
+			category: 'none',
+			allowinvite: 'on',
 			joinpolicy: 0,
 			private: 'off',
 		};
@@ -62,28 +62,10 @@ class NewGroupForm extends Component
 					<input type='text' name='name' placeholder='Group name' onChange={this.handleChange}></input><br/>
 					<input type='text' name='category' placeholder='Category' onChange={this.handleChange}></input><br/>
 					<input type='text' name='topic' placeholder='Topic' onChange={this.handleChange}></input><br/>
-					Type:<br/>
-					<select type='text' name='type' onChange={this.handleChange}>
-						<option value='std'>Standard</option>
-						<option value='DM'>Direct message</option>
-					</select><br/>
 					<select type='text' name='private' onChange={this.handleChange}>
 						<option value='off'>Public group</option>
 						<option value='on'>Private group</option>
 					</select><br/>
-					<br/>
-					Join policy:<br/>
-					<select type='text' name='joinpolicy' onChange={this.handleChange}>
-						<option value='0'>Allow all</option>
-						<option value='1'>Request/invite only</option>
-						<option value='2'>Invite only</option>
-					</select><br/>
-					Allow non-admins to send invites:<br/>
-					<select type='text' name='allowinvite' onChange={this.handleChange}>
-						<option value='on'>Yes</option>
-						<option value='off'>No</option>
-					</select><br/>
-					<br/>
 					<br/>
 					<button type='submit'>Submit</button>
 				</form>
@@ -93,3 +75,37 @@ class NewGroupForm extends Component
 }
 
 export default NewGroupForm;
+
+
+
+
+
+// <form onSubmit={this.props.handleSubmit.bind(null, this.state)}>
+// 	<input type='text' name='name' placeholder='Group name' onChange={this.handleChange}></input><br/>
+// 	<input type='text' name='category' placeholder='Category' onChange={this.handleChange}></input><br/>
+// 	<input type='text' name='topic' placeholder='Topic' onChange={this.handleChange}></input><br/>
+// 	Type:<br/>
+// 	<select type='text' name='type' onChange={this.handleChange}>
+// 		<option value='std'>Standard</option>
+// 		<option value='DM'>Direct message</option>
+// 	</select><br/>
+// 	<select type='text' name='private' onChange={this.handleChange}>
+// 		<option value='off'>Public group</option>
+// 		<option value='on'>Private group</option>
+// 	</select><br/>
+// 	<br/>
+// 	Join policy:<br/>
+// 	<select type='text' name='joinpolicy' onChange={this.handleChange}>
+// 		<option value='0'>Allow all</option>
+// 		<option value='1'>Request/invite only</option>
+// 		<option value='2'>Invite only</option>
+// 	</select><br/>
+// 	Allow non-admins to send invites:<br/>
+// 	<select type='text' name='allowinvite' onChange={this.handleChange}>
+// 		<option value='on'>Yes</option>
+// 		<option value='off'>No</option>
+// 	</select><br/>
+// 	<br/>
+// 	<br/>
+// 	<button type='submit'>Submit</button>
+// </form>

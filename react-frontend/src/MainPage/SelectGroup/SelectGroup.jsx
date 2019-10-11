@@ -12,9 +12,11 @@ class SelectGroup extends Component
 			//STUFF
 			whichTab: 'private',
 			privateGroups: [],
+			publicGroups: [],
 			contacts: []
 		};
 		this.getPrivateGroups();
+		this.getPublicGroups();
 		this.getContacts();
 	}
 
@@ -55,14 +57,41 @@ class SelectGroup extends Component
 		});
 		groups = await groups.json();
 		
-
 		if (groups[0])
 		{
+
 			this.setState(
 			{
 				privateGroups: groups,
 				groupId: groups[0].id,
 				groupName: groups[0].name
+			});
+		}
+		else
+		{
+			//do nothing
+		}
+	}
+
+	getPublicGroups = async () =>
+	{
+		let groups = await fetch(this.props.apiURL + '/groups', {
+			method: 'GET',
+			//body: JSON.stringify(data),
+			headers:
+			{
+				"Content-Type": "application/json",
+				"Authentication": this.props.sessionId
+			}
+		});
+		groups = await groups.json();
+		
+		if (groups[0])
+		{
+
+			this.setState(
+			{
+				publicGroups: groups
 			});
 		}
 		else
@@ -120,6 +149,8 @@ class SelectGroup extends Component
 
 			//Now get the display name of the user we're DMing:
 
+			this.getContacts();
+
 			this.state.contacts.forEach((contact, index) =>
 			{
 				if (contact._id == input)
@@ -129,7 +160,7 @@ class SelectGroup extends Component
 
 					this.props.handleSelectGroup(groupInfo._id, contact.displayname);
 				}
-			})
+			});
 
 			
 
@@ -208,7 +239,19 @@ class SelectGroup extends Component
 
 				//Switch to it:
 
-				this.props.handleSelectGroup(groupInfo._id);
+				this.getContacts();
+
+				this.state.contacts.forEach((contact, index) =>
+				{
+					if (contact._id == userInfo._id)
+					{
+						//We found it!
+						//Switch to the group:
+
+						//this.props.handleSelectGroup(groupInfo._id, contact.displayname);
+						//Actually don't automatically switch to the group.
+					}
+				});
 			}
 		}
 		else
@@ -231,9 +274,9 @@ class SelectGroup extends Component
 						<div>
 							<span>Direct Messages</span><br/>
 							<span>Add contacts by username:</span>
-							<div className="addContactForm">
-								<form onSubmit={this.handleAddContact}>
-									<input name='contactUsernameToAdd' placeholder='Type here' onChange={this.handleChange}></input>
+							<div className="addContactDiv">
+								<form onSubmit={this.handleAddContact} className="addContactForm">
+									<textarea rows="1" name='contactUsernameToAdd' placeholder='Type here' onChange={this.handleChange} className="addContactInput"></textarea><br/>
 									<button type='submit'>Add Contact</button>
 								</form>
 							</div>
@@ -257,7 +300,7 @@ class SelectGroup extends Component
 							{
 								this.state.privateGroups.map((group, index) =>
 								{
-									if (group.type != 'dm')
+									if (group.type != 'dm' && group.private)
 									{
 										return(
 											<span className="singleGroup" onClick={this.groupClick.bind(null, group.id)}>
@@ -272,7 +315,19 @@ class SelectGroup extends Component
 						null
 					}
 					{this.state.whichTab == 'public' ?
-						<span>Public Groups</span>
+						<div>
+							<span>Public Groups</span><br/><br/>
+							{
+									this.state.publicGroups.map((group, index) =>
+									{
+										return(
+											<span className="singleGroup" onClick={this.groupClick.bind(null, group.id)}>
+												{group.name}
+											</span>
+										);
+									})
+								}
+						</div>
 					:
 						null
 					}

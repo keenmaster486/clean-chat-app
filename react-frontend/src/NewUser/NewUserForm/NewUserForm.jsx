@@ -48,8 +48,8 @@ class NewUserForm extends Component
 	{
 		return(
 			<form onSubmit={this.props.handleSubmit.bind(null, this.state)}>
-				<input type='text' name='username' placeholder='Username' onChange={this.handleChange}></input><br/>
-				<input type='password' name='password' placeholder='Password' onChange={this.handleChange}></input><br/>
+				<input type='text' name='username' placeholder='Type a username' onChange={this.handleChange}></input><br/>
+				<input type='password' name='password' placeholder='Type a password' onChange={this.handleChange}></input><br/>
 				<input type='password' name='password2' placeholder='Retype password' onChange={this.handleChange}></input><br/>
 				<input type='text' name='displayname' placeholder='Display Name' onChange={this.handleChange}></input><br/>
 				<button type='submit'>Submit</button><br/>

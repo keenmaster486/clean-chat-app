@@ -28,14 +28,21 @@ class SelectUser extends Component
 
 	getOptions = async (apiURL) =>
 	{
-		let users = await fetch(apiURL + '/users');
-		users = await users.json();
-		if (users[0])
+		let contacts = await fetch(apiURL + '/users/' + this.props.userId + '/contacts', {
+			method: 'GET',
+			headers:
+			{
+				"Content-Type": "application/json",
+				"Authentication": this.props.sessionId
+			}
+		});
+		contacts = await contacts.json();
+		if (contacts[0])
 		{
 			this.setState(
 			{
-				users: users,
-				userId: users[0]._id
+				users: contacts,
+				userId: contacts[0]._id
 			});
 		}
 		else

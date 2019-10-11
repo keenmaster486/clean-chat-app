@@ -3,7 +3,6 @@ import React, {Component} from 'react';
 import ChatBox from '../ChatBox/ChatBox';
 import NewGroup from './NewGroup/NewGroup';
 import SelectGroup from './SelectGroup/SelectGroup';
-import SelectUser from './SelectUser/SelectUser';
 
 import {Modal, ModalHeader, ModalBody, ModalFooter} from 'reactstrap';
 
@@ -19,6 +18,7 @@ class MainPage extends Component
 			//STUFF
 			chatOn: true,
 			selectGroupModal: false,
+			createGroupModal: false,
 			currentGroup:
 				{
 					name: 'Enter a chat',
@@ -92,39 +92,7 @@ class MainPage extends Component
 		});
 	}
 	
-	handleSelectUser = async (input, e) =>
-	{
-		e.preventDefault();
-
-		//make the API call to add the user:
-		const submitURL = this.props.apiURL + '/groups/' + this.state.currentGroup.id + '/adduser';
-
-		let response = await fetch(submitURL, {
-			method: 'PUT',
-			body: JSON.stringify(
-				{
-					userId: input.userId
-				}),
-			headers:
-			{
-				"Content-Type": "application/json",
-				"Authentication": this.props.sessionId
-			}
-		});
-
-		response = await response.json();
-
-		console.log(response);
-
-		if (!response.success)
-		{
-			alert("error");
-		}
-		else
-		{
-			alert("added user " + input.userId + " to the group")
-		}
-	}
+	
 
 	toggleSelectGroup = () =>
 	{
@@ -134,6 +102,16 @@ class MainPage extends Component
 		});
 	}
 
+	toggleCreateGroupModal = () =>
+	{
+		this.setState(
+		{
+			createGroupModal: !this.state.createGroupModal
+		});
+	}
+
+	
+
 	render()
 	{
 		return(
@@ -141,6 +119,8 @@ class MainPage extends Component
 				<div>
 					
 					<button onClick={this.toggleSelectGroup} className="switchChatButton">Switch chat</button>
+
+					<button onClick={this.toggleCreateGroupModal} className="createGroupButton">Create a new group</button>
 
 					<Modal isOpen={this.state.selectGroupModal} toggle={this.toggleSelectGroup} className='selectGroupModal' size='lg'>
 						<ModalHeader>
@@ -157,13 +137,29 @@ class MainPage extends Component
 					</Modal>
 
 
+					<Modal isOpen={this.state.createGroupModal} toggle={this.toggleCreateGroupModal} className='createGroupModal' size='lg'>
+						<ModalHeader>
+							Create New Group
+						</ModalHeader>
+
+						<ModalBody>
+							<NewGroup apiURL={this.props.apiURL} userId={this.props.userId} sessionId={this.props.sessionId}></NewGroup>
+						</ModalBody>
+
+						<ModalFooter>
+							<button onClick={this.toggleCreateGroupModal}>Close</button>
+						</ModalFooter>
+					</Modal>
+
+					
+
 
 				</div>
 				{this.state.chatOn ?
 					<div>
 						
 						<ChatBox apiURL={this.props.apiURL} currentGroup={this.state.currentGroup} userId={this.props.userId} sessionId={this.props.sessionId}></ChatBox>
-						<SelectUser apiURL={this.props.apiURL} handleSelectUser={this.handleSelectUser} sessionId={this.props.sessionId}></SelectUser>
+						
 					</div>
 				:
 				null
@@ -174,6 +170,3 @@ class MainPage extends Component
 }
 
 export default MainPage;
-
-
-//<NewGroup apiURL={this.props.apiURL} userId={this.props.userId} sessionId={this.props.sessionId}></NewGroup>

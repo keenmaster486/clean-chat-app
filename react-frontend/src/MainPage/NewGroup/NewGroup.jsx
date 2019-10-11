@@ -34,7 +34,11 @@ class NewGroup extends Component
 		let newGroupResponse = await fetch(submitURL, {
 			method: 'POST',
 			body: newGroupFormData,
-		    headers: {"Content-Type": "application/json"}
+		    headers:
+		    {
+				"Content-Type": "application/json",
+				"Authentication": this.props.sessionId
+			}
 		});
 		newGroupResponse = await newGroupResponse.json();
 		//this.props.changeState({newgroupresponse: await newgroupResponse})

@@ -4,6 +4,7 @@ import "./ChatBox.css";
 
 
 import GiphySearch from '../GiphySearch/GiphySearch';
+import SelectUser from '../MainPage/SelectUser/SelectUser';
 
 
 import {Modal, ModalHeader, ModalBody, ModalFooter} from 'reactstrap';
@@ -20,6 +21,9 @@ class ChatBox extends Component
 			currentGroup:
 			{
 				name: '',
+				categories: ['none'],
+				topic: '',
+				
 				id: '',
 				type: '',
 				otherUserName: '',
@@ -29,7 +33,10 @@ class ChatBox extends Component
 			imgPreview: false,
 			imgPreviewSrc: '',
 			editMsg: false,
-			msgId: ''
+			msgId: '',
+			giphySearchOn: false,
+			addUserModal: false,
+			groupInfoModal: false
 		};
 		this.getUserInfo();
 		this.getGroupInfo();
@@ -74,7 +81,13 @@ class ChatBox extends Component
 		//don't do anything if we're in the global chatroom:
 		//if (this.props.currentGroup.name == 'global') {return;}
 
+		if (!this.props.currentGroup.id)
+		{
+			return; //do nothing if we're not even in a group yet
+		}
+
 		const oldMsgLength = this.state.currentGroup.msgLength;
+		const oldId = this.state.currentGroup.id;
 
 		//gets the group info from the Express API and stores it in the state:
 		let groupInfo = await fetch(this.props.apiURL + '/groups/' + this.props.currentGroup.id, {
@@ -88,51 +101,53 @@ class ChatBox extends Component
 		});
 		groupInfo = await groupInfo.json();
 
-		// if (groupInfo.type == 'dm' && this.state.currentGroup.otherUserName != '')
-		// {
-		// 	groupInfo.users.forEach(async (user, index) =>
-		// 	{
-		// 		if (user._id != this.props.userId)
-		// 		{
-		// 			//console.log(user.displayname);
-		// 			let userInfo = await fetch(this.props.apiURL + '/users/' + user._id, {
-		// 				method: 'GET',
-		// 				//body: JSON.stringify(data),
-		// 				headers:
-		// 				{
-		// 					"Content-Type": "application/json",
-		// 					"Authentication": this.props.sessionId
-		// 				}
-		// 			});
-
-		// 			userInfo = await userInfo.json();
-
-		// 			this.setState(
-		// 			{
-		// 				currentGroup:
-		// 				{
-		// 					otherUserName: userInfo.displayname
-		// 				}
-		// 			});
-		// 		}
-		// 	});
-		// }
+		
 
 		this.setState(
 		{
 			currentGroup:
 			{
 				name: await groupInfo.name,
+				categories: await groupInfo.categories,
+				topic: await groupInfo.topic,
 				id: await groupInfo.id,
+				type: await groupInfo.type,
+				private: await groupInfo.private,
 				msgLength: await groupInfo.msgLength,
 				otherUserName: this.props.currentGroup.otherUserName
 			}
 		});
 		const msgLength = await groupInfo.msgLength;
-		if (oldMsgLength != msgLength)
+		if (oldMsgLength != msgLength || groupInfo.msgLength != oldMsgLength || oldId != groupInfo.id)
 		{
 			await this.getMessages();
 		}
+		// console.log(this.state.currentGroup.categories);
+		// console.log(this.state.usersInGroup);
+	}
+
+
+	getUsersInGroup = async () =>
+	{
+		//This runs only when you open the group info modal
+		console.log("Getting users in group");
+		//gets the group info from the Express API and stores it in the state:
+		let groupInfo = await fetch(this.props.apiURL + '/groups/' + this.props.currentGroup.id + '/users', {
+			method: 'GET',
+			//body: JSON.stringify(data),
+			headers:
+			{
+				"Content-Type": "application/json",
+				"Authentication": this.props.sessionId
+			}
+		});
+		groupInfo = await groupInfo.json();
+
+		this.setState(
+		{
+			usersInGroup: groupInfo.users
+		});
+		console.log(groupInfo.users);
 	}
 
 	getMessages = async (howMany = 25) =>
@@ -141,7 +156,7 @@ class ChatBox extends Component
 		//and then stores them in the state's messages array
 		
 		//we'll have to have re-gotten the group info in order to have the most recent msgLength!
-
+		console.log("getting new messages");
 		const msgLength = await this.state.currentGroup.msgLength;
 
 		//let startmsg = await this.state.currentGroup.msgLength - 5;
@@ -355,6 +370,47 @@ class ChatBox extends Component
 		//this.getMessages();
 	}
 
+
+	handleSelectUser = async (input, e) =>
+	{
+		e.preventDefault();
+
+		//make the API call to add the user:
+		const submitURL = this.props.apiURL + '/groups/' + this.state.currentGroup.id + '/adduser';
+
+		let response = await fetch(submitURL, {
+			method: 'PUT',
+			body: JSON.stringify(
+				{
+					userId: input.userId
+				}),
+			headers:
+			{
+				"Content-Type": "application/json",
+				"Authentication": this.props.sessionId
+			}
+		});
+
+		response = await response.json();
+
+		console.log(response);
+
+		// if (!response.success)
+		// {
+		// 	alert("error");
+		// }
+		// else
+		// {
+		// 	alert("Added user to the group")
+		// }
+		alert(await response.message);
+
+		//Make sure the group info is up to date:
+		this.getUsersInGroup();
+	}
+
+
+
 	toggleEditMsg = (e) =>
 	{
 		// if (!this.state.editMsg)
@@ -368,6 +424,35 @@ class ChatBox extends Component
 		this.setState(
 		{
 			editMsg: !this.state.editMsg
+		});
+	}
+
+	toggleGiphySearch = () =>
+	{
+		this.setState(
+		{
+			giphySearchOn: !this.state.giphySearchOn
+		});
+	}
+
+	toggleAddUserModal = () =>
+	{
+		this.setState(
+		{
+			addUserModal: !this.state.addUserModal
+		});
+	}
+
+	toggleGroupInfoModal = () =>
+	{
+		if (!this.state.groupInfoModal)
+		{
+			this.getGroupInfo();
+			this.getUsersInGroup();
+		}
+		this.setState(
+		{
+			groupInfoModal: !this.state.groupInfoModal
 		});
 	}
 
@@ -406,7 +491,7 @@ class ChatBox extends Component
 							this.state.msgImage != '' &&
 							<div className='imgInsideMsgContainer'><img onClick={this.toggleImgPreview} className='imgInsideMsg' src={this.state.msgImage}/></div>
 						}
-						<GiphySearch handleGifClick={this.handleGifClick}></GiphySearch>
+						<button onClick={this.toggleGiphySearch}>Search Gifs</button>
 					</ModalBody>
 
 					<ModalFooter>
@@ -415,38 +500,118 @@ class ChatBox extends Component
 				</Modal>
 
 
+				<Modal isOpen={this.state.giphySearchOn} toggle={this.toggleGiphySearch} className='giphySearchModal' size='lg'>
+					<ModalHeader>
+						GiphySearch
+					</ModalHeader>
+
+					<ModalBody>
+						<GiphySearch handleGifClick={this.handleGifClick}></GiphySearch>
+					</ModalBody>
+
+					<ModalFooter>
+						<button onClick={this.toggleGiphySearch}>Close</button>
+					</ModalFooter>
+				</Modal>
+
+
+
+				<Modal isOpen={this.state.addUserModal} toggle={this.toggleAddUserModal} className='addUserModal' size='lg'>
+					<ModalHeader>
+						Add user to group
+					</ModalHeader>
+
+					<ModalBody>
+						<SelectUser apiURL={this.props.apiURL} handleSelectUser={this.handleSelectUser} sessionId={this.props.sessionId} userId={this.props.userId}></SelectUser>
+					</ModalBody>
+
+					<ModalFooter>
+						<button onClick={this.toggleAddUserModal}>Close</button>
+					</ModalFooter>
+				</Modal>
+
+
+
+				<Modal isOpen={this.state.groupInfoModal} toggle={this.toggleGroupInfoModal} className='groupInfoModal' size='lg'>
+					<ModalHeader>
+						Group info
+					</ModalHeader>
+
+					<ModalBody>
+						{this.state.currentGroup.categories && this.state.usersInGroup ?
+							<div>
+								Name: {this.state.currentGroup.name}<br/>
+								Category: {this.state.currentGroup.categories[0]}<br/>
+								Topic: {this.state.currentGroup.topic}<br/><br/>
+								{this.state.currentGroup.private ?
+									<div>
+										Users in this group:<br/><br/>
+										{this.state.usersInGroup.map((user, index) =>
+											{
+												return(
+													<span>
+														{user.displayname} (<i>{user.username}</i>)<br/>
+													</span>
+												);
+											})
+										}
+									</div>
+								:
+									<div>
+										This is a public group. Anyone can join and chat
+									</div>
+								}
+							</div>
+						:
+							null
+						}
+					</ModalBody>
+
+					<ModalFooter>
+						<button onClick={this.toggleGroupInfoModal}>Close</button>
+					</ModalFooter>
+				</Modal>
+
 
 				
 
 				<div className='chatboxcontainer'>
 					<div className='chatboxGroupName'>
 						{this.state.currentGroup.type == 'dm' ?
-							this.state.currentGroup.name
-						:
 							this.state.currentGroup.otherUserName
+						:
+							this.state.currentGroup.name
 						}
 					</div>
 					<div className='chatbox'>
 						<div className='spancontainer'>
-							{
-								this.state.messages.map((msg, index) =>
-								{
-									return(
-										
-										<span key={index} className={msg.userId == this.props.userId ? 'yourmsg' : 'othermsg'}>
-											<font face='courier new'><b>{msg.userdisplayname}:</b></font> {msg.text}
-											{msg.userId == this.props.userId &&
-												<div>
-													<button className="editButton" onClick={this.handleEditMsgClick.bind(null, index)}>Edit</button>
-													<button className="editButton" onClick={this.handleDeleteMsgClick.bind(null, index)}>Delete</button>
-												</div>
-											}
-											{msg.image ? <div className='imgInsideMsgContainer'><img onClick={this.toggleImgPreview} className='imgInsideMsg' src={msg.image}></img></div> : ''}
-										</span>
+							{this.state.messages.length > 0 ?
+								
+									this.state.messages.map((msg, index) =>
+									{
+										return(
+											
+											<span key={index} className={msg.userId == this.props.userId ? 'yourmsg' : 'othermsg'}>
+												<font face='courier new'><b>{msg.userdisplayname}:</b></font> {msg.text}
+												{msg.userId == this.props.userId &&
+													<div>
+														<button className="editButton" onClick={this.handleEditMsgClick.bind(null, index)}>Edit</button>
+														<button className="editButton" onClick={this.handleDeleteMsgClick.bind(null, index)}>Delete</button>
+													</div>
+												}
+												{msg.image ? <div className='imgInsideMsgContainer'><img onClick={this.toggleImgPreview} className='imgInsideMsg' src={msg.image}></img></div> : ''}
+											</span>
 
-										
-									);
-								})
+											
+										);
+									})
+								
+							:
+								this.state.currentGroup.id ?
+									<div>Nothing here yet! Start the chat by typing below.</div>
+								:
+									<div>Enter a chat to begin</div>
+								
 							}
 						</div>
 					</div>
@@ -458,7 +623,7 @@ class ChatBox extends Component
 						</form>
 					:
 						<div>
-							Enter a group to send messages
+							Enter a chat to send messages
 						</div>
 					}
 					{
@@ -466,8 +631,19 @@ class ChatBox extends Component
 						<div className='imgInsideMsgContainer'><img onClick={this.toggleImgPreview} className='imgInsideMsg' src={this.state.msgImage}/></div>
 					}
 				</div>
-				
-				<GiphySearch handleGifClick={this.handleGifClick}></GiphySearch>
+				<br/>
+				<button onClick={this.toggleGiphySearch} className="gifSearchButton">Search Gifs</button>
+				{this.state.currentGroup.type && this.state.currentGroup.type != '' && this.state.currentGroup.type != 'dm' && this.state.currentGroup.private ?
+					<button onClick={this.toggleAddUserModal}>Add a user to this group</button>
+				:
+					null
+				}
+				<br/>
+				{this.state.currentGroup.id != '' && this.state.currentGroup.id ?
+					<button onClick={this.toggleGroupInfoModal}>Group Info</button>
+				:
+					null
+				}
 		</div>
 
 		);
