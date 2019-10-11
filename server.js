@@ -48,7 +48,7 @@ app.use(express.static('./public'));
 const sessionStore = new mongoStore(
 {
 	mongooseConnection: dbConnection,
-	secret: 'skdjfksjf53245ai3245j6giojaifjweo1089n1hg6h5246a24j56knkncvnkkh89u4rhjsdflk'
+	secret: process.env.STORE_SECRET
 });
 
 //console.log(sessionStore);
@@ -57,7 +57,7 @@ const sessionStore = new mongoStore(
 app.use(session(
 {
 	//TODO: what should this secret string be?
-	secret: "avmjlajurialajfrlirjalifjsadligjliajalerjalkejfidsjvlzkcxjvlaisjdifjsaf",
+	secret: process.env.SESSION_SECRET,
 	store: sessionStore,
 	resave: false, //only save if there has been a change
 	saveUninitialized: false, //only save if we have mutated the session - this is what should be done for logins
