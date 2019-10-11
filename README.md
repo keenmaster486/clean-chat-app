@@ -4,7 +4,9 @@ This is a chat app that is intended to be, once and for all, the
 
 ## ONE CHAT APP TO RULE THEM ALL
 
-You can see the current status of the app here: http://clean-chat-app.herokuapp.com
+You can see the current status of the app here: https://clean-chat-app.herokuapp.com
+
+(update 10/11/2019: the site is now available over HTTPS. Attempts to load with HTTP will result in issues)
 
 Try the test user (username: testuser, password: pass)
 
