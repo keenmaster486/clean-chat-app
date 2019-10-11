@@ -343,7 +343,9 @@ class App extends Component
 					:
 					(
 						<div>
-						
+							<h5><b>
+								This website is now available over secure HTTPS! Make sure the URL in your browser says "https://" instead of "http://"
+							</b></h5>
 							<div className="notLoggedInContainer">
 								<NewUser apiURL={this.state.apiURL} changeState={this.changeState}></NewUser>
 								<Login apiURL={this.state.apiURL} handleLogin={this.handleLogin}></Login>
