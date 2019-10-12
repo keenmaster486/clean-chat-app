@@ -11,6 +11,9 @@ class SelectGroup extends Component
 		{
 			//STUFF
 			whichTab: 'private',
+			dmTabClassName: "singleGroupTab",
+			privateTabClassName: "singleGroupTab tabSelected",
+			publicTabClassName: "singleGroupTab",
 			privateGroups: [],
 			publicGroups: [],
 			contacts: []
@@ -171,7 +174,10 @@ class SelectGroup extends Component
 	{
 		this.setState(
 		{
-			whichTab: 'dms'
+			whichTab: 'dms',
+			dmTabClassName: "singleGroupTab tabSelected",
+			privateTabClassName: "singleGroupTab",
+			publicTabClassName: "singleGroupTab"
 		});
 	}
 
@@ -179,7 +185,10 @@ class SelectGroup extends Component
 	{
 		this.setState(
 		{
-			whichTab: 'private'
+			whichTab: 'private',
+			dmTabClassName: "singleGroupTab",
+			privateTabClassName: "singleGroupTab tabSelected",
+			publicTabClassName: "singleGroupTab"
 		});
 	}
 
@@ -187,7 +196,10 @@ class SelectGroup extends Component
 	{
 		this.setState(
 		{
-			whichTab: 'public'
+			whichTab: 'public',
+			dmTabClassName: "singleGroupTab",
+			privateTabClassName: "singleGroupTab",
+			publicTabClassName: "singleGroupTab tabSelected"
 		});
 	}
 
@@ -265,9 +277,9 @@ class SelectGroup extends Component
 		return(
 			<div className="selectGroupContainer">
 				<div className="groupTabsContainer">
-					<span className="singleGroupTab" onClick={this.dmTabClick}>Direct Messages</span>
-					<span className="singleGroupTab" onClick={this.privateTabClick}>Private Groups</span>
-					<span className="singleGroupTab" onClick={this.publicTabClick}>Public Groups</span>
+					<span className={this.state.dmTabClassName} onClick={this.dmTabClick}>Direct Messages</span>
+					<span className={this.state.privateTabClassName} onClick={this.privateTabClick}>Private Groups</span>
+					<span className={this.state.publicTabClassName} onClick={this.publicTabClick}>Public Groups</span>
 				</div>
 				<div className="groupsContainer">
 					{this.state.whichTab == 'dms' ?

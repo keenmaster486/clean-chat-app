@@ -1,39 +1,52 @@
 .selectGroupContainer
 {
-	border: 1px solid black;
 	padding: 10px;	
 }
 
 .groupTabsContainer
 {
 	
-	margin: 10px;
-	padding: 10px 0px 10px 0px;
+	margin: -7px;
+	padding: 0px;
 	text-align: center;
-	border: 2px solid grey;
-	border-radius: 20px;
-	background-color: #EEEEEE;
 }
 
 .singleGroupTab
 {
-	border: 2px solid black;
-	border-radius: 10px;
-	margin: 5px;
+	border-top: 2px solid black;
+	border-left: 2px solid black;
+	border-right: 2px solid black;
+	border-bottom: 2px solid black;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+
+
+
+	margin: 0px 5px -2px 5px;
 	padding: 5px;
-	display: block;
-	background-color: white;
+	display: inline-block;
+	background-color: lightgrey;
 }
 
 .singleGroupTab:hover
 {
-	background-color: lightgrey;
+	cursor: pointer;
+}
+
+.tabSelected
+{
+	border-bottom: 2px solid white;
+	background-color: white;
 }
 
 .groupsContainer
 {
 	text-align: center;
-	margin: 20px;
+	margin: 6.5px 0px 0px 0px;
+	border: 2px solid black;
+	border-radius: 3px;
+	border-bottom-left-radius: 10px;
+	border-bottom-right-radius: 10px;
 }
 
 .singleGroup
@@ -49,6 +62,7 @@
 .singleGroup:hover
 {
 	background-color: lightgrey;
+	cursor: pointer;
 }
 
 .addContactInput
@@ -71,7 +85,7 @@
 
 
 
-@media only screen and (max-width: 850px)
+/*@media only screen and (max-width: 850px)
 {
 
 	.groupTabsContainer
@@ -95,4 +109,4 @@
 		max-width: 100%;
 	}
 	
-}
+}*/
