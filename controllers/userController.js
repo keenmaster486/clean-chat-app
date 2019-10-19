@@ -13,7 +13,12 @@ router.get('/', function(req, res)
 		{
 			console.log("GET /users");
 			//res.send("GET /users");
-			res.json(foundUsers);
+			//res.json(foundUsers);
+			res.json(
+			{
+				success: false,
+				message: "Not allowed"
+			});
 		}
 	});
 });
@@ -22,12 +27,21 @@ router.get('/new', function(req, res)
 {
 	if (req.session.username && req.session.usertype !== 'admin')
 	{
-		res.send("You must log off before trying to create a new user!");
+		//res.send("You must log off before trying to create a new user!");
+		res.json(
+		{
+			success: false,
+			message: "You must log off before trying to create a new user!"
+		});
 	}
 	else //if logged out, or an administrator user!
 	{
 		console.log("GET /users/new");
-		res.send("GET /users/new");
+		res.json(
+		{
+			success: true,
+			message: "Not implemented"
+		});
 	}
 });
 
@@ -55,11 +69,11 @@ router.post('/', function(req, res) //POST route to create a new user!!
 		const userDbEntry =
 		{
 			username: lcusername,
-			usertype: req.body.usertype,
+			usertype: 'std', //req.body.usertype,
 			email: req.body.email,
 			password: passwordHash,
 			displayname: req.body.displayname,
-			entries: []
+			//entries: []
 		};
 
 		User.findOne({username: lcusername}, function(err, foundUser)
@@ -193,49 +207,60 @@ router.get('/:id/contacts', function(req, res)
 // 	});
 // });
 
-router.get('/:id/edit', function(req, res)
+// router.get('/:id/edit', function(req, res)
+// {
+// 	if (req.session.curuserid == req.params.id || req.session.usertype == 'admin')
+// 	{
+// 		User.findById(req.params.id, function(err, userToEdit)
+// 		{
+// 			if (err) {console.log(err);}
+// 			else
+// 			{
+// 				console.log(`GET /users/${req.params.id}/edit`);
+// 				res.send(`GET /users/${req.params.id}/edit`);
+// 			}
+// 		});
+// 	}
+// 	else
+// 	{
+// 		res.send(`You can't edit the settings for a user you're not logged in as!<br><a href="/">Back to home</a>`);
+// 	}
+// });
+
+router.put('/:id', function(req, res)
 {
-	if (req.session.curuserid == req.params.id || req.session.usertype == 'admin')
+	if (req.session.curuserid != req.params.id)
 	{
-		User.findById(req.params.id, function(err, userToEdit)
+		res.json(
 		{
-			if (err) {console.log(err);}
-			else
-			{
-				console.log(`GET /users/${req.params.id}/edit`);
-				res.send(`GET /users/${req.params.id}/edit`);
-			}
+			success: false,
+			message: "You must be logged in as this user to edit it"
 		});
 	}
 	else
 	{
-		res.send(`You can't edit the settings for a user you're not logged in as!<br><a href="/">Back to home</a>`);
+		User.findByIdAndUpdate(req.params.id, req.body, function(err, userEdited)
+		{
+			if (err)
+			{
+				console.log(err);
+				res.json(
+				{
+					success: false
+				});
+			}
+			else
+			{
+				console.log(`PUT /users/${req.params.id}`);
+				//res.send(`PUT /users/${req.params.id}`);
+				//res.redirect('/users');
+				res.json(
+				{
+					success: true
+				});
+			}
+		});
 	}
-});
-
-router.put('/:id', function(req, res)
-{
-	User.findByIdAndUpdate(req.params.id, req.body, function(err, userEdited)
-	{
-		if (err)
-		{
-			console.log(err);
-			res.json(
-			{
-				success: false
-			});
-		}
-		else
-		{
-			console.log(`PUT /users/${req.params.id}`);
-			//res.send(`PUT /users/${req.params.id}`);
-			//res.redirect('/users');
-			res.json(
-			{
-				success: true
-			});
-		}
-	});
 });
 
 
