@@ -36,7 +36,8 @@ class ChatBox extends Component
 			msgId: '',
 			giphySearchOn: false,
 			addUserModal: false,
-			groupInfoModal: false
+			groupInfoModal: false,
+			infoIconSrc: this.props.apiURL + "/images/info-icon.png"
 		};
 		this.getUserInfo();
 		this.getGroupInfo();
@@ -582,6 +583,11 @@ class ChatBox extends Component
 						:
 							this.state.currentGroup.name
 						}
+						{this.state.currentGroup.id != '' && this.state.currentGroup.id ?
+							<img onClick={this.toggleGroupInfoModal} src={this.state.infoIconSrc} className="groupInfoIcon"/>
+						:
+							null
+						}
 					</div>
 					<div className='chatbox'>
 						<div className='spancontainer'>
@@ -639,11 +645,7 @@ class ChatBox extends Component
 					null
 				}
 				<br/>
-				{this.state.currentGroup.id != '' && this.state.currentGroup.id ?
-					<button onClick={this.toggleGroupInfoModal}>Group Info</button>
-				:
-					null
-				}
+				
 		</div>
 
 		);

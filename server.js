@@ -21,6 +21,7 @@ const socketIo = require('socket.io');
 const userController = require('./controllers/userController');
 const authController = require('./controllers/authController');
 const groupController = require('./controllers/groupController');
+const legacyController = require('./controllers/legacyController');
 
 const dbConnection = require('./db/db');
 
@@ -125,6 +126,7 @@ app.use(function(req, res, next)
 app.use('/users', userController);
 app.use('/auth', authController);
 app.use('/groups', groupController);
+app.use('/legacy', legacyController);
 
 
 

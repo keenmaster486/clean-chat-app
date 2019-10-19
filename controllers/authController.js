@@ -84,6 +84,8 @@ router.get('/status', function(req, res)
 
 router.post('/login', function(req, res)
 {
+	//console.log("Login - req.body: ");
+	//console.log(req.body);
 	//Change username to lowercase:
 	req.body.username = req.body.username.toLowerCase();
 	console.log(`POST /login: trying to login for ${req.body.username}`);
