@@ -6,9 +6,9 @@ This is a chat app that is intended to be, once and for all, the
 
 You can see the current status of the app here: https://clean-chat-app.herokuapp.com
 
-(update 10/11/2019: the site is now available over HTTPS. Attempts to load with HTTP will result in issues)
+(update 10/11/2019: the site is now available over HTTPS. Attempts to load the frontend with HTTP will result in issues)
 
-Try the test user (username: testuser, password: pass)
+(update 10/18/2019: there is now an experimental client for old versions of Windows, from 3.1 through XP, available here: ftp://casablanca25.mynetgear.com/software/Win9x/programs/Internet/Chat%20Clients/CCAVB3.zip)
 
 Since the app is under active development, the functionality of the app will change frequently. Anything you do on the app right now may be destroyed as I push updates and nuke the database here and there.
 
@@ -21,6 +21,65 @@ Here's a list of what this chat app will be:
 * DMs, group messaging, and voice and video chat included and working on all platforms
 
 Right now the backend is built in Node.js with Express, and the web frontend using React. Once proper functionality is achieved, more clients will be built for other platforms and systems, including smartphones.
+
+
+## API Documentation
+
+All of these are at the URL https://clean-chat-app.herokuapp.com (or you can use plain HTTP if you so desire)
+
+Authenticate each request by setting the HTTP header Authentication to the session ID you are given when logging in.
+
+
+GET /status -- API status
+
+
+POST /auth -- logs in. Needs "username" and "password"
+
+GET /auth/status -- tells you whether you are logged in or not
+
+GET /auth/logout -- logs out
+
+
+POST /users -- create a new user. Needs "username", "email" (can be empty), "password", "displayname"
+
+GET /users/:userId -- info for a particular user
+
+GET /users/username/:username -- info for a particular user, found by username instead of id
+
+GET /users/:userId/contacts -- a particular user's contacts
+
+PUT /users/:userId -- update a user's info
+
+
+GET /groups -- list of public groups
+
+GET /groups/:groupId -- info for a particular group
+
+GET /groups/foruser/:userId -- list of private and DM groups a certain user is a member of
+
+GET /groups/:groupId/messages/:startmsg/:endmsg -- list of messages for a group, from startmsg to endmsg index
+
+GET /groups/dms/:user1_id/:user2_id -- gets the ID of a DM group between two users - creates the group if nonexistent
+
+GET /groups/:groupId/users -- list of users who are members of a group
+
+POST /groups/:groupId/messages -- add a message to the group's messages array. Needs "text", "image" (a URL), "video" (a URL), "url" (a supplementary URL), and "userId" (user adding the message)
+
+PUT /groups/:groupId/messages -- edit a message. Needs the message info, "userId", and "id"
+
+DELETE /groups/:groupId/messages -- delete a message. Needs "userId" and "id"
+
+
+See the source code for more information.
+
+
+
+
+
+
+
+
+## License
 
 This project was created by Collin Brockway, and is licensed under the following:
 
