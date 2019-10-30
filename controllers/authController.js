@@ -4,6 +4,30 @@ const router = express.Router();
 
 const User = require('../models/userSchema');
 
+router.get('/sessionInfo', (req, res) =>
+{
+	//send back the session info if request was authenticated with a sessionId
+	console.log("Attempting to send session info");
+	if (req.session.logged)
+	{
+		console.log("Logged in! Sending info");
+		res.json(
+		{
+			success: true,
+			userId: req.session.curuserid
+		});
+	}
+	else
+	{
+		console.log("Not logged in, sending success false");
+		res.json(
+		{
+			success: false
+		});
+	}
+});
+
+
 router.get('/status', function(req, res)
 {
 
