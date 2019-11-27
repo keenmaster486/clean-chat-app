@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Messages</title>
+	<% if (session.retroAutoReload) { %>
+		<script>
+			function reloadMsgs()
+			{
+				window.location.reload();
+			}
+			setInterval("reloadMsgs()", 5000)
+		</script>
+	<% } %>
+</head>
+<body onLoad="window.scrollTo(0,1000000)">
+
+	<% if (messages.length > 0) { %>
+		<% for (let i = 0; i < messages.length; i++) { %>
+				<p>
+					<%=messages[i].userdisplayname%>:
+					<%=messages[i].text%>
+				</p>
+		<% } %>
+		<% if (!session.retroAutoReload) { %>
+			<div align="right">
+				<form>
+					<input type="submit" onClick="window.location.reload()" value="Load New Messages"></input>
+				</form>
+			</div>
+		<% } %>
+	<% } %>
+
+	<% if (messages.length == 0) { %>
+		No messages yet
+	<% } %>
+
+</body>
+</html>

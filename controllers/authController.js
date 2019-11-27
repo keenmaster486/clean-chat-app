@@ -151,13 +151,20 @@ router.post('/login', function(req, res)
 				console.log("login attempt successful");
 				//res.send("login attempt successful");
 				//console.log(req.session);
-
-				//We'll go ahead and send the current user id to the client side:
-				res.json({
-					success: true,
-					userId: foundUser._id,
-					sessionId: req.sessionID
-				});
+				console.log(req.body.retro);
+				if (req.body.retro == 'true')
+				{
+					res.redirect('/retroWeb/chatbox');
+				}
+				else
+				{
+					//We'll go ahead and send the current user id to the client side:
+					res.json({
+						success: true,
+						userId: foundUser._id,
+						sessionId: req.sessionID
+					});
+				}
 			}
 			else
 			{
@@ -174,7 +181,7 @@ router.post('/login', function(req, res)
 });
 
 
-
+//This function is DEPRECATED, get rid of things that use it! Use the POST method instead
 router.get('/logout', function(req, res)
 {
 	if (!req.session.username)
@@ -205,6 +212,47 @@ router.get('/logout', function(req, res)
 			success: true,
 			message: "You are now logged out"
 		});
+	}
+});
+
+//This is the new POST method for logging out
+router.post('/logout', function(req, res)
+{
+	if (!req.session.username)
+	{
+		//res.redirect('/home')
+		res.json(
+		{
+			success: false,
+			message: "Already logged out"
+		});
+	}
+	else
+	{
+		//END the session:
+		console.log("POST -- Attempting to log out for user " + req.session.username)
+		const tempusername = req.session.username;
+		req.session.logged = false;
+		req.session.usertype = null;
+		req.session.username = null;
+		//req.session.messages.userwelcome = "You are not logged in";
+		req.session.curuserid = null;
+		req.session.destroy();
+		console.log(`${tempusername} is now logged out`);
+		//res.redirect('/home')
+		//res.send("logged out");
+		if (req.body.retro)
+		{
+			res.redirect('/retroWeb/');
+		}
+		else
+		{
+			res.json(
+			{
+				success: true,
+				message: "You are now logged out"
+			});
+		}
 	}
 });
 

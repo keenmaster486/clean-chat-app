@@ -22,6 +22,7 @@ const userController = require('./controllers/userController');
 const authController = require('./controllers/authController');
 const groupController = require('./controllers/groupController');
 const legacyController = require('./controllers/legacyController');
+const retroWebController = require('./controllers/retroWebController');
 
 const dbConnection = require('./db/db');
 
@@ -42,7 +43,7 @@ app.use(cors(
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
-app.use(express.static(path.join(__dirname, '/react-frontend/build')));
+//app.use('/react', express.static(path.join(__dirname, '/react-frontend/build')));
 
 app.use(express.static('./public'));
 
@@ -100,6 +101,10 @@ app.use(function(req, res, next)
 	else
 	{
 		console.log("UNAUTHENTICATED REQUEST")
+		if (req.session.logged)
+		{
+			console.log("But from retro client so it's OK");
+		}
 		if (req.session.loginAttempt){
 			req.session.loginmessage = null
 		} else {
@@ -114,6 +119,7 @@ app.use(function(req, res, next)
 			req.session.curuserid = null;
 			req.session.username = null;
 			req.session.usertype = null;
+			req.session.retroAutoReload = false;
 		}
 		res.locals.session = req.session;
 		next();
@@ -127,9 +133,13 @@ app.use('/users', userController);
 app.use('/auth', authController);
 app.use('/groups', groupController);
 app.use('/legacy', legacyController);
+app.use('/retroWeb', retroWebController);
 
 
-
+app.get('/', (req, res)=>
+{
+	res.render('index.ejs');
+});
 
 
 
@@ -154,7 +164,7 @@ app.post('/status', function(req, res)
 
 
 
-app.get('*', function(req, res)
+app.get('/react', function(req, res)
 {
 	//SEND REACT STUFF
 	res.sendFile(path.join(__dirname+'/react-frontend/build/index.html'));

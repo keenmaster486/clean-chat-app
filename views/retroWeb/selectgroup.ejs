@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SelectGroup</title>
+</head>
+<body bgcolor="#0077DD">
+
+	<% if (session.logged) { %>
+		<p>Welcome, <%=session.username%></p>
+
+		<noscript>
+			Notice: Your browser does not support Javascript
+			or it is disabled. While the site will
+			likely still work, you may experience
+			reduced functionality.<br><br>
+		</noscript>
+
+		Public groups:
+		<form action="/retroWeb/chatbox" method="POST" target="window">
+			<select name="whichGroup">
+				<% for (let i = 0; i < publicGroups.length; i++) { %>
+					<option value="<%=publicGroups[i]._id%>"><%=publicGroups[i].name%></option>
+				<% } %>
+			</select><br>
+			<input type="hidden" name="whetherDm" value="false"></input>
+			<input type="submit" value="Enter group"></input>
+		</form>
+
+		Private groups:
+		<form action="/retroWeb/chatbox" method="POST" target="window">
+			<select name="whichGroup">
+				<% for (let i = 0; i < privateGroups.length; i++) { %>
+					<option value="<%=privateGroups[i]._id%>"><%=privateGroups[i].name%></option>
+				<% } %>
+			</select><br>
+			<input type="hidden" name="whetherDm" value="false"></input>
+			<input type="submit" value="Enter group"></input>
+		</form>
+
+		Contacts:
+		<form action="/retroWeb/chatbox" method="POST" target="window">
+			<select name="whichGroup">
+				<% for (let i = 0; i < contacts.length; i++) { %>
+					<option value="<%=contacts[i]._id%>"><%=contacts[i].displayname%></option>
+				<% } %>
+			</select><br>
+			<input type="hidden" name="whetherDm" value="true"></input>
+			<input type="submit" value="Enter chat"></input>
+		</form>
+
+		<form action="/auth/logout" method="POST" target="window">
+			<input type="submit" value="Logout"></input>
+			<input type="hidden" name="retro" value="true"></input>
+		</form>
+	<% } %>
+
+</body>
+</html>

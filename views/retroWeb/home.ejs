@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>CCA Retro Web Client</title>
+</head>
+<body>
+
+	<h1>CCA Retro Web Client</h1>
+	<% if (!session.logged) { %>
+		<p>Log In</p>
+		<form action="/auth/login" method="POST">
+			Username:<br>
+			<input type="text" name="username"></input><br>
+			Password:<br>
+			<input type="password" name="password"></input><br>
+			<input type="hidden" name="retro" value="true"></input>
+			<input type="submit" value="Login"></input>
+		</form>
+	<% } %>
+	<% if (session.logged) { %>
+		<p>Welcome, <%=session.username%></p>
+		<a href="/retroWeb/chatbox">Enter chats</a>
+	<% } %>
+
+
+</body>
+</html>

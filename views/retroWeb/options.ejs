@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Options</title>
+</head>
+<body bgcolor="#AAAAAA">
+
+	<form action="/retroWeb/setOptions" method="POST">
+		<% if (session.retroAutoReload) { %>
+			<input type="checkbox" checked name="autoReload">Auto Reload</input>
+		<% } %>
+		<% if (!session.retroAutoReload) { %>
+			<input type="checkbox" name="autoReload">Auto Reload</input>
+		<% } %>
+		<input type="submit" value="Apply Changes"></input>
+		(you may have to reload the messages frame or the page)
+	</form>
+
+</body>
+</html>

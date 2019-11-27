@@ -397,12 +397,19 @@ router.post('/:id/messages', function(req, res)
 						Group.findByIdAndUpdate(req.params.id, {$push: {messages: createdMsg._id}}, function(err, updatedGroup)
 						{
 							if (err) {console.log(err);}
-							res.json(
+							if (req.body.retro)
 							{
-								success: true,
-								text: createdMsg.text,
-								id: createdMsg._id
-							});
+								res.redirect('/retroWeb/messages/' + req.params.id);
+							}
+							else
+							{
+								res.json(
+								{
+									success: true,
+									text: createdMsg.text,
+									id: createdMsg._id
+								});
+							}
 						});
 					}
 				});

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<% if (group) { %>
+		<title><%=group.name%></title>
+	<% } %>
+	<% if (!group) { %>
+		<title>CleanChat</title>
+	<% } %>
+</head>
+
+	
+	<frameset rows="10%, 90%">
+		<frameset cols="25%,75%">
+			<% if (group) { %>
+				<frame name="Title" src="/retroWeb/htmlMsg/<%=encodeURI(group.name)%>" scrolling="no">
+				<frame name="Options" src="/retroWeb/options">
+			<% } %>
+			<% if (!group) { %>
+				<frame name="Title" src="/retroWeb/htmlMsg/Enter%20a%20group" scrolling="no">
+				<frame name="Options" src="/blank.html">
+			<% } %>
+		</frameset>
+		<frameset cols="25%, 75%">
+			<frame name="SelectGroup" src="/retroWeb/selectgroup">
+			<frameset rows="70%, 30%">
+				<% if (group) { %>
+					<frame name="Messages" src="/retroWeb/messages/<%=group._id%>">
+					<frame name="SendMsg" src="/retroWeb/sendMsg/<%=group._id%>">
+				<% } %>
+				<% if (!group) { %>
+					<frame name="Messages" src="/blank.html">
+					<frame name="SendMsg" src="/blank.html">
+				<% } %>
+			</frameset>
+		</frameset>
+		<noframes>This browser does not support frames!</noframes>	
+	</frameset>
+
+</html>

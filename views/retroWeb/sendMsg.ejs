@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SendMsg</title>
+	<script>
+		function removeText()
+		{
+			document.forms[0].elements["text"].value = '';
+		}
+	</script>
+</head>
+<body bgcolor="#00AA44">
+
+	<form action="/groups/<%=groupId%>/messages" method="POST" target="Messages" onSubmit="setTimeout('removeText()',100)">
+		<input type="hidden" name="userId" value="<%=userId%>"></input>
+		<input type="hidden" name="retro" value="true"></input>
+		<textarea name="text" rows=2 cols=45></textarea>
+		<input type="submit" value="Send"></input>
+	</form>
+
+</body>
+</html>
