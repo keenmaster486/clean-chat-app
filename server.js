@@ -43,7 +43,7 @@ app.use(cors(
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
-//app.use('/react', express.static(path.join(__dirname, '/react-frontend/build')));
+
 
 app.use(express.static('./public'));
 
@@ -163,6 +163,8 @@ app.post('/status', function(req, res)
 });
 
 
+
+app.use(express.static(path.join(__dirname, '/react-frontend/build')));
 
 app.get('/react', function(req, res)
 {
