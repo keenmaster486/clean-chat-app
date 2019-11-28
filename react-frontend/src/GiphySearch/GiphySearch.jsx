@@ -49,7 +49,7 @@ class GiphySearch extends Component
 		//Returns some <img>s of gifs from the state
 		return this.state.results.data.map((gif) =>
 		{
-			const url = "https://i.giphy.com/media/" + gif.id + "/giphy.webp";
+			const url = "http://i.giphy.com/media/" + gif.id + "/giphy.gif";
 			return(
 				<img src={url}/>
 			);
@@ -76,7 +76,7 @@ class GiphySearch extends Component
 						this.state.results.data.map((gif, index) =>
 						{
 							return(
-								<img key={index} onClick={this.handleClick.bind(null, index)} className={this.state.selected != index ? 'gif' : 'gif gifClicked'} src={"https://i.giphy.com/media/" + gif.id + "/giphy.webp"}/>
+								<img key={index} onClick={this.handleClick.bind(null, index)} className={this.state.selected != index ? 'gif' : 'gif gifClicked'} src={"http://i.giphy.com/media/" + gif.id + "/giphy.gif"}/>
 							);
 						})
 					}
