@@ -12,16 +12,13 @@ const groupSchema = new Schema(
 	private: {type: Boolean, required: true}, //whether public or private (false or true)
 	joinpolicy: {type: Number, required: true}, //join policy: 0=any, 1=request/invite, 2=invite only
 	allowinvite: {type: Boolean, required: true}, //whether to allow non-admins to invite other users
-	messages: [{type: Schema.Types.ObjectId, ref: 'Message'}] //array of Messages
-	// messages:[
-	// 	{
-	// 		user: {type: Schema.Types.ObjectId, ref: 'User'},
-	// 		text: {type: String, required: true},
-	// 		image: String,
-	// 		video: String,
-	// 		url: String
-	// 	}
-	// ]
+	messages: [{type: Schema.Types.ObjectId, ref: 'Message'}], //array of Messages
+	usersMetaData: [
+	{
+		userId: String,
+		lastMsgLength: Number,
+		whetherChanged: Boolean
+	}]
 });
 
 const Group = new mongoose.model('Group', groupSchema);

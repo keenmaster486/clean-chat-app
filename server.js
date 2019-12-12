@@ -40,8 +40,11 @@ app.use(cors(
 }));
 
 
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({limit: '10mb', extended: false}));
+app.use(bodyParser.json({limit: '10mb'}));
+
+
+app.use(methodOverride('_method'));
 
 
 
@@ -103,7 +106,7 @@ app.use(function(req, res, next)
 		console.log("UNAUTHENTICATED REQUEST")
 		if (req.session.logged)
 		{
-			console.log("But from retro client so it's OK");
+			console.log("But session is logged so it's OK");
 		}
 		if (req.session.loginAttempt){
 			req.session.loginmessage = null

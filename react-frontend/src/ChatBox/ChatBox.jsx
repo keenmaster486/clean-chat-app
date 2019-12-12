@@ -6,6 +6,7 @@ import "./ChatBox.css";
 import GiphySearch from '../GiphySearch/GiphySearch';
 import SelectUser from '../MainPage/SelectUser/SelectUser';
 
+import FileBase64 from 'react-file-base64';
 
 import {Modal, ModalHeader, ModalBody, ModalFooter} from 'reactstrap';
 
@@ -119,7 +120,7 @@ class ChatBox extends Component
 			}
 		});
 		const msgLength = await groupInfo.msgLength;
-		if (oldMsgLength != msgLength || groupInfo.msgLength != oldMsgLength || oldId != groupInfo.id)
+		if (oldMsgLength != msgLength || groupInfo.msgLength != oldMsgLength || oldId != groupInfo.id || groupInfo.userMetaData.whetherChanged)
 		{
 			await this.getMessages();
 		}
@@ -220,6 +221,24 @@ class ChatBox extends Component
 		return msgResponse.id;
 	}
 
+	uploadImgAPICall = async (newMsg) =>
+	{
+		const submitURL = this.props.apiURL + '/groups/' + this.state.currentGroup.id + '/messages/uploadImage';
+
+		let msgResponse = await fetch(submitURL, {
+			method: 'POST',
+			body: JSON.stringify(newMsg),
+			headers:
+		    {
+		    	"Content-Type": "application/json",
+		    	"Authentication": this.props.sessionId
+		    }
+		});
+		msgResponse = await msgResponse.json();
+		console.log(msgResponse);
+		return msgResponse.id;
+	}
+
 	addEditMsg = async (e) =>
 	{
 		e.preventDefault();
@@ -270,46 +289,102 @@ class ChatBox extends Component
 	addMsg = async (e) =>
 	{
 		e.preventDefault();
-		const msgText = this.state.msgText;
-		let msgImage = null;
-		if (this.state.msgImage) {msgImage = this.state.msgImage;}
+		if (this.state.msgText != '' && !this.state.imageFiles)
+		{
+			const msgText = this.state.msgText;
+			let msgImage = null;
+			if (this.state.msgImage) {msgImage = this.state.msgImage;}
+			
+			const newMsg =
+			{
+				userId: this.props.userId,
+				userdisplayname: this.state.displayname,
+				text: msgText,
+				image: msgImage,
+				video: '',
+				url: '',
+				id: ''
+			};
+
+			//Right here is where we should make a POST request to
+			//the Express API to add the message to the current
+			//group's message array
+
+
+			//if (this.props.currentGroup.name == 'global')
+			//{
+				//do something for global
+			//}
+			//else
+			//{
+				//Express API call to add message to group!
+				newMsg.id = await this.addMsgAPICall(newMsg);
+				console.log("newMsg.id: " + newMsg.id);
+			//}
+
+			this.setState(
+			{
+				msgText: '',
+				msgImage: '',
+				messages: [...this.state.messages, await newMsg]
+			});
+
+			document.getElementById('msgtextbox').value = '';
+			document.getElementById('imgtextbox').value = '';
+		}
+
+		//NOW if there are any images we have uploaded
+		//to the client side, go ahead and add those
+		//messages as well:
+
+		if (this.state.imageFiles)
+		{
+			if (this.state.imageFiles.length == 1)
+			{
+				//If there is only one
+				this.uploadImgAPICall(
+				{
+					userId: this.props.userId,
+					userdisplayname: this.state.displayname,
+					text: this.state.msgText,
+					image: this.state.imageFiles[0].base64,
+					video: '',
+					url: '',
+					id: ''
+				});
+			}
+			else
+			{
+				this.addMsgAPICall(
+				{
+					userId: this.props.userId,
+					userdisplayname: this.state.userdisplayname,
+					text: this.state.msgText,
+					image: this.state.msgImage,
+					video: '',
+					url: '',
+					id: ''
+				});
+				for (let i = 0; i < this.state.imageFiles.length; i++)
+				{
+					this.uploadImgAPICall(
+					{
+						userId: this.props.userId,
+						userdisplayname: this.state.displayname,
+						text: '',
+						image: this.state.imageFiles[i].base64,
+						video: '',
+						url: '',
+						id: ''
+					});
+				}
+				this.setState(
+				{
+					imageFiles: null
+				});
+			}
+		}
 		
-		const newMsg =
-		{
-			userId: this.props.userId,
-			userdisplayname: this.state.displayname,
-			text: msgText,
-			image: msgImage,
-			video: '',
-			url: '',
-			id: ''
-		};
-
-		//Right here is where we should make a POST request to
-		//the Express API to add the message to the current
-		//group's message array
-
-
-		//if (this.props.currentGroup.name == 'global')
-		//{
-			//do something for global
-		//}
-		//else
-		//{
-			//Express API call to add message to group!
-			newMsg.id = await this.addMsgAPICall(newMsg);
-			console.log("newMsg.id: " + newMsg.id);
-		//}
-
-		this.setState(
-		{
-			msgText: '',
-			msgImage: '',
-			messages: [...this.state.messages, await newMsg]
-		});
-
-		document.getElementById('msgtextbox').value = '';
-		document.getElementById('imgtextbox').value = '';
 	}
 
 
@@ -454,6 +529,16 @@ class ChatBox extends Component
 		this.setState(
 		{
 			groupInfoModal: !this.state.groupInfoModal
+		});
+	}
+
+	gotImageFiles(files)
+	{
+		console.log("GOT IMAGE(S)");
+		//console.log(files);
+		this.setState(
+		{
+			imageFiles: files
 		});
 	}
 
@@ -622,11 +707,14 @@ class ChatBox extends Component
 						</div>
 					</div>
 					{this.state.currentGroup.id != '' && this.state.currentGroup.id ?
-						<form onSubmit={this.addMsg}>
-							<textarea id='msgtextbox' onChange={this.handleChange} type='text' name='msgText' placeholder='Your message here'></textarea><br/>
-							<input id = 'imgtextbox' onChange={this.handleChange} name='msgImage' placeholder='You can put an image link here'></input>
-							<button id='sendbtn' type='submit'>Send</button>
-						</form>
+						<div>
+							<form onSubmit={this.addMsg}>
+								<textarea id='msgtextbox' onChange={this.handleChange} type='text' name='msgText' placeholder='Your message here'></textarea><br/>
+								<input id = 'imgtextbox' onChange={this.handleChange} name='msgImage' placeholder='You can put an image link here'></input>
+								<button id='sendbtn' type='submit'>Send</button>
+							</form>
+							<FileBase64 multiple={true} onDone={this.gotImageFiles.bind(this)}></FileBase64>
+						</div>
 					:
 						<div>
 							Enter a chat to send messages

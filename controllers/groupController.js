@@ -3,6 +3,15 @@ const router = express.Router();
 
 const mongoose = require('mongoose');
 
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config(
+{
+	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+	api_key: process.env.CLOUDINARY_API_KEY,
+	api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
 const Group = require('../models/groupSchema');
 const User = require('../models/userSchema');
 const Message = require('../models/messageSchema');
@@ -38,10 +47,26 @@ router.get('/', function(req, res)
 					if (!group.private)
 					{
 						//console.log("found a public group to send")
+						//get the user metadata:
+						let userMetaData =
+						{
+							lastMsgLength: null //never opened group is default
+						};
+						if (group.usersMetaData)
+						{
+							for (let i = 0; i < group.usersMetaData.length; i++)
+							{
+								if (group.usersMetaData[i].userId == req.session.curuserid)
+								{
+									userMetaData = group.usersMetaData[i];
+								}
+							}
+						}
 						const singleGroupInfo =
 						{
 							name: group.name,
-							id: group._id
+							id: group._id,
+							userMetaData: userMetaData
 						};
 						infoToSend.push(singleGroupInfo);
 					}
@@ -81,11 +106,27 @@ router.get('/foruser/:userId', function(req, res)
 					console.log(foundGroups[i].users);
 					if (foundGroups[i].users.includes(req.params.userId) && foundGroups[i].type != 'dm')
 					{
+						//get the user metadata:
+						let userMetaData =
+						{
+							lastMsgLength: null //never opened group is default
+						};
+						if (foundGroups[i].usersMetaData)
+						{
+							for (let j = 0; j < foundGroups[i].usersMetaData.length; j++)
+							{
+								if (foundGroups[i].usersMetaData[j].userId == req.session.curuserid)
+								{
+									userMetaData = foundGroups[i].usersMetaData[j];
+								}
+							}
+						}
 						infoToSend.push(
 						{
 							name: foundGroups[i].name,
 							id: foundGroups[i]._id,
-							private: foundGroups[i].private
+							private: foundGroups[i].private,
+							userMetaData: userMetaData
 						});
 					}
 				}
@@ -130,6 +171,22 @@ router.get('/:id', function(req, res)
 			if (err) {console.log(err);}
 			else
 			{
+				
+				//get the user metadata:
+				let userMetaData =
+				{
+					lastMsgLength: null //never opened group is default
+				};
+				if (foundGroup.usersMetaData)
+				{
+					for (let i = 0; i < foundGroup.usersMetaData.length; i++)
+					{
+						if (foundGroup.usersMetaData[i].userId == req.session.curuserid)
+						{
+							userMetaData = foundGroup.usersMetaData[i];
+						}
+					}
+				}
 				const groupInfo =
 				{
 					name: foundGroup.name,
@@ -142,7 +199,8 @@ router.get('/:id', function(req, res)
 					allowinvite: foundGroup.allowinvite,
 
 					//extra info not directly in the group schema:
-					msgLength: foundGroup.messages.length
+					msgLength: foundGroup.messages.length,
+					userMetaData: userMetaData
 				};
 				if (foundGroup.type == 'dm')
 				{
@@ -283,7 +341,33 @@ router.get('/dms/:user1_id/:user2_id', (req, res) =>
 					{
 						//it does exist! Send the info:
 						console.log("The DM group exists!");
-						res.json(foundGroup);
+						//get the user metadata:
+						let userMetaData =
+						{
+							lastMsgLength: -1 //never opened group is default
+						};
+						if (foundGroup.usersMetaData)
+						{
+							for (let i = 0; i < foundGroup.usersMetaData.length; i++)
+							{
+								if (foundGroup.usersMetaData[i].userId == req.session.curuserid)
+								{
+									userMetaData = foundGroup.usersMetaData[i];
+								}
+							}
+						}
+						const infoToSend =
+						{
+							_id: foundGroup._id,
+							users: foundGroup.users,
+							name: foundGroup.name,
+							type: foundGroup.type,
+							private: foundGroup.private,
+							userMetaData: userMetaData,
+							msgLength: foundGroup.messages.length
+						};
+						console.log(infoToSend);
+						res.json(infoToSend);
 					}
 				});
 			}
@@ -339,7 +423,40 @@ router.get('/:id/messages/:startmsg/:endmsg', function(req, res)
 				else
 				{
 					//endpoints are good, now send the messages:
-					console.log(foundGroup.messages);
+					//console.log(foundGroup.messages);
+					//set the user metadata:
+					if (foundGroup.usersMetaData)
+					{
+						let foundUserMetaData = false;
+						for (let i = 0; i < foundGroup.usersMetaData; i++)
+						{
+							if (foundGroup.usersMetaData[i].userId == req.session.curuserid)
+							{
+								foundGroup.usersMetaData[i].lastMsgLength = foundGroup.messages.length;
+								foundGroup.usersMetaData[i].whetherChanged = false;
+								foundUserMetaData = true;
+							}
+						}
+						if (!foundUserMetaData)
+						{
+							foundGroup.usersMetaData.push(
+							{
+								userId: req.session.curuserid,
+								lastMsgLength: foundGroup.messages.length,
+								whetherChanged: false
+							});
+						}
+					}
+					else
+					{
+						foundGroup.usersMetaData = [
+						{
+							userId: req.session.curuserid,
+							lastMsgLength: foundGroup.messages.length,
+							whetherChanged: false
+						}]
+					}
+					foundGroup.save();
 					res.json(foundGroup.messages.slice(req.params.startmsg, req.params.endmsg));
 				}
 			}
@@ -397,12 +514,152 @@ router.post('/:id/messages', function(req, res)
 						Group.findByIdAndUpdate(req.params.id, {$push: {messages: createdMsg._id}}, function(err, updatedGroup)
 						{
 							if (err) {console.log(err);}
+							else
+							{
+								//Set the user metadata:
+								if (updatedGroup.usersMetaData)
+								{
+									for (let i = 0; i < updatedGroup.usersMetaData.length; i++)
+									{
+										updatedGroup.usersMetaData[i].whetherChanged = true;
+									}
+								}
+								updatedGroup.save();
+								if (req.body.retro)
+								{
+									res.redirect('/retroWeb/messages/' + req.params.id);
+								}
+								else
+								{
+									res.json(
+									{
+										success: true,
+										text: createdMsg.text,
+										id: createdMsg._id
+									});
+								}
+							}
+						});
+					}
+				});
+			}
+		});
+	}
+
+});
+
+router.post('/:id/notify', (req, res) =>
+{
+	//flip the whetherChanged flag for all users!
+
+	Group.findById(req.params.id, (err, foundGroup) =>
+	{
+		if (err)
+		{
+			console.log(err);
+		}
+		else
+		{
+			if (foundGroup.usersMetaData)
+			{
+				for (let i = 0; i < foundGroup.usersMetaData.length; i++)
+				{
+					foundGroup.usersMetaData[i].whetherChanged = true;
+				}
+			}
+			foundGroup.save();
+		}
+	});
+});
+
+
+router.post('/:id/messages/uploadImage', (req, res) =>
+{
+	console.log(`POST /groups/${req.params.id}/messages/uploadImage`);
+
+	
+	//The image will be coming through as a chunk of base64 data,
+	//in req.body.image.
+
+
+	if (!req.session.logged || req.session.curuserid != req.body.userId)
+	{
+		req.json(
+		{
+			success: false,
+			message: "Permission denied!"
+		});
+	}
+	else
+	{
+		User.findById(req.body.userId, function(err, foundUser)
+		{
+			if (err) {console.log(err);}
+			else
+			{
+				//Create the message:
+				const newMsg =
+				{
+					userId: foundUser._id,
+					userdisplayname: foundUser.displayname,
+					text: req.body.text,
+					image: 'loading',
+					video: '',
+					url: ''
+				};
+				Message.create(newMsg, function(err, createdMsg)
+				{
+					if (err)
+					{
+						console.log(err);
+						res.json(
+						{
+							success: false
+						});
+					}
+					else
+					{
+						Group.findByIdAndUpdate(req.params.id, {$push: {messages: createdMsg._id}}, function(err, updatedGroup)
+						{
+							if (err) {console.log(err);}
 							if (req.body.retro)
 							{
 								res.redirect('/retroWeb/messages/' + req.params.id);
 							}
 							else
 							{
+								//Here we actually perform the image upload
+
+								//We limit the image to 1024-height
+								//and create an pre-stored transformation
+								//that is a smaller size for old systems.
+
+								const imageOptions =
+								{
+									height: 1024,
+									crop: 'fit',
+									format: 'jpg',
+									eager: [{height: 480, crop: 'fit', format: 'jpg'}],
+									notification_url: "https://clean-chat-app.herokuapp.com/groups/" + updatedGroup._id + "/notify"
+								}
+
+								cloudinary.uploader.upload(req.body.image, imageOptions, function (err, response)
+								{
+									//Set the public id:
+									createdMsg.image = cloudinary.url(response.public_id + '.jpg');
+									createdMsg.save();
+								});
+
+								//Set the user metadata:
+								if (updatedGroup.usersMetaData)
+								{
+									for (let i = 0; i < updatedGroup.usersMetaData.length; i++)
+									{
+										updatedGroup.usersMetaData[i].whetherChanged = true;
+									}
+								}
+								updatedGroup.save();
+
 								res.json(
 								{
 									success: true,
@@ -416,9 +673,7 @@ router.post('/:id/messages', function(req, res)
 			}
 		});
 	}
-
 });
-
 
 
 
@@ -469,6 +724,18 @@ router.put('/:id/messages', function(req, res)
 					}
 					else
 					{
+						Group.findById(req.params.id, (err, foundGroup) =>
+						{
+							//Set the user metadata:
+							if (foundGroup.usersMetaData)
+							{
+								for (let i = 0; i < foundGroup.usersMetaData.length; i++)
+								{
+									foundGroup.usersMetaData[i].whetherChanged = true;
+								}
+							}
+							foundGroup.save();
+						});
 						res.json(
 						{
 							success: true,
@@ -534,17 +801,31 @@ router.delete('/:id/messages', function(req, res)
 									if (foundGroup.messages[i] == req.body.id)
 									{
 										foundGroup.messages.splice(i, 1); //remove it
+										//Set the user metadata:
+										if (foundGroup.usersMetaData)
+										{
+											for (let i = 0; i < foundGroup.usersMetaData.length; i++)
+											{
+												foundGroup.usersMetaData[i].whetherChanged = true;
+											}
+										}
 										console.log("removed a message");
 										break;
 									}
 								};
 
 								foundGroup.save();
-
-								res.json(
+								if (req.body.retro == 'true')
 								{
-									success: true,
-								});
+									res.redirect('/retroWeb/messages/' + req.params.id);
+								}
+								else
+								{
+									res.json(
+									{
+										success: true,
+									});
+								}
 							}
 						});
 					}

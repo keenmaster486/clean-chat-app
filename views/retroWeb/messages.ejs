@@ -16,25 +16,43 @@
 
 	<% if (messages.length > 0) { %>
 		<% for (let i = 0; i < messages.length; i++) { %>
-				<table border=1 cellspacing=0 cellpadding=10>
-					<tr>
-					<td>
-						<%=messages[i].userdisplayname%>:
-						<%=messages[i].text%>
-					</td>
-					<% if (messages[i].image && messages[i].image != '') { %>
-						<% if (messages[i].image.substring(0,5) == 'https') { %>
-							<% messages[i].image = 'http' + messages[i].image.substring(5,messages[i].image.length);%>
-						<% } %>
-						<% if (messages[i].image.substring(messages[i].image.length-4,messages[i].image.length) == 'webp') { %>
-							<% messages[i].image = messages[i].image.substring(0,messages[i].image.length-5) + '.gif';%>
-						<% } %>
-						<tr>
-						<td>
-							<img alt="If you cannot see this image, it may be loaded from an https source or be an unsupported image format such as webp." src="<%=messages[i].image%>" height=150 border=2>
-						</td>
-					<% } %>
-				</table>
+				<% if (messages[i].userId == session.curuserid) { %>
+					<div align="right">
+				<% } %>
+				<% if (messages[i].userId != session.curuserid) { %>
+					<div align="left">
+				<% } %>
+						<table border=1 cellspacing=0 cellpadding=10>
+							<tr>
+							<td>
+								<%=messages[i].userdisplayname%>:
+								<%=messages[i].text%>
+							</td>
+							<% if (messages[i].image && messages[i].image != '') { %>
+								<% if (messages[i].image.substring(0,5) == 'https') { %>
+									<% messages[i].image = 'http' + messages[i].image.substring(5,messages[i].image.length);%>
+								<% } %>
+								<% if (messages[i].image.substring(messages[i].image.length-4,messages[i].image.length) == 'webp') { %>
+									<% messages[i].image = messages[i].image.substring(0,messages[i].image.length-5) + '.gif';%>
+								<% } %>
+								<tr>
+								<td>
+									<img alt="If you cannot see this image, it may be loaded from an https source or be an unsupported image format such as webp." src="<%=messages[i].image%>" height=150 border=2>
+								</td>
+							<% } %>
+							<% if (messages[i].userId == session.curuserid) { %>
+								<tr>
+								<td>
+									<form action="/groups/<%=groupId%>/messages?_method=DELETE" method="POST" target="Messages">
+										<input type="hidden" name="userId" value="<%=session.curuserid%>">
+										<input type="hidden" name="id" value="<%=messages[i]._id%>">
+										<input type="hidden" name="retro" value="true">
+										<input type="submit" value="DELETE">
+									</form>
+								</td>
+							<% } %>
+						</table>
+					</div>
 				<br>
 		<% } %>
 		<% if (!session.retroAutoReload) { %>

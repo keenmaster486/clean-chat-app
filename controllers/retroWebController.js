@@ -223,7 +223,7 @@ router.get('/messages/:id', async (req, res)=>
 		let groupToEnter = await Group.findById(req.params.id).populate('messages');
 		let messages = await groupToEnter.messages;
 		//console.log(await messages);
-		res.render('retroWeb/messages.ejs', {messages: await messages})
+		res.render('retroWeb/messages.ejs', {messages: await messages, groupId: req.params.id})
 	}
 });
 

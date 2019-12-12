@@ -6,6 +6,7 @@
 		function removeText()
 		{
 			document.forms[0].elements["text"].value = '';
+			document.forms[0].elements["image"].value = '';
 		}
 	</script>
 </head>
@@ -15,7 +16,9 @@
 		<input type="hidden" name="userId" value="<%=userId%>"></input>
 		<input type="hidden" name="retro" value="true"></input>
 		<textarea name="text" rows=2 cols=45></textarea>
-		<input type="submit" value="Send"></input>
+		<input type="submit" value="Send"></input><br>
+		Image link:
+		<input type="text" name="image" placeholder="Image link"></input>
 	</form>
 
 </body>
