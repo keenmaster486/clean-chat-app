@@ -690,7 +690,15 @@ class ChatBox extends Component
 														<button className="editButton" onClick={this.handleDeleteMsgClick.bind(null, index)}>Delete</button>
 													</div>
 												}
-												{msg.image ? <div className='imgInsideMsgContainer'><img onClick={this.toggleImgPreview} className='imgInsideMsg' src={msg.image}></img></div> : ''}
+												{msg.image ?
+													msg.image == 'loading' ?
+														<div className='imgInsideMsgContainer'><img className='imgInsideMsg' src={this.props.apiURL + '/images/loading.gif'}></img></div>	
+													:
+														<div className='imgInsideMsgContainer'><img onClick={this.toggleImgPreview} className='imgInsideMsg' src={msg.image}></img></div>
+													
+												:
+													''
+												}
 											</span>
 
 											

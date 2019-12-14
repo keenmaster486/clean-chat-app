@@ -628,6 +628,16 @@ router.post('/:id/messages/uploadImage', (req, res) =>
 							}
 							else
 							{
+								//Set the user metadata:
+								if (updatedGroup.usersMetaData)
+								{
+									for (let i = 0; i < updatedGroup.usersMetaData.length; i++)
+									{
+										updatedGroup.usersMetaData[i].whetherChanged = true;
+									}
+								}
+								updatedGroup.save();
+
 								//Here we actually perform the image upload
 
 								//We limit the image to 1024-height
@@ -640,7 +650,7 @@ router.post('/:id/messages/uploadImage', (req, res) =>
 									crop: 'fit',
 									format: 'jpg',
 									eager: [{height: 480, crop: 'fit', format: 'jpg'}],
-									notification_url: "https://clean-chat-app.herokuapp.com/groups/" + updatedGroup._id + "/notify"
+									notification_url: process.env.REACT_APP_BACKEND_ADDRESS + "/groups/" + updatedGroup._id + "/notify"
 								}
 
 								cloudinary.uploader.upload(req.body.image, imageOptions, function (err, response)
@@ -649,16 +659,6 @@ router.post('/:id/messages/uploadImage', (req, res) =>
 									createdMsg.image = cloudinary.url(response.public_id + '.jpg');
 									createdMsg.save();
 								});
-
-								//Set the user metadata:
-								if (updatedGroup.usersMetaData)
-								{
-									for (let i = 0; i < updatedGroup.usersMetaData.length; i++)
-									{
-										updatedGroup.usersMetaData[i].whetherChanged = true;
-									}
-								}
-								updatedGroup.save();
 
 								res.json(
 								{
