@@ -35,6 +35,9 @@
 								<% if (messages[i].image.substring(messages[i].image.length-4,messages[i].image.length) == 'webp') { %>
 									<% messages[i].image = messages[i].image.substring(0,messages[i].image.length-5) + '.gif';%>
 								<% } %>
+								<% if (messages[i].image == 'loading') { %>
+									<% messages[i].image = 'http://clean-chat-app.herokuapp.com/images/loading.gif';%>
+								<% } %>
 								<tr>
 								<td>
 									<img alt="If you cannot see this image, it may be loaded from an https source or be an unsupported image format such as webp." src="<%=messages[i].image%>" height=150 border=2>
