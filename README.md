@@ -69,6 +69,8 @@ PUT /groups/:groupId/messages -- edit a message. Needs the message info, "userId
 
 DELETE /groups/:groupId/messages -- delete a message. Needs "userId" and "id"
 
+Some extra routes for the retro web client. TODO: document these.
+
 
 See the source code for more information.
 
