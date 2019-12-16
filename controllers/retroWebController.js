@@ -3,6 +3,7 @@ const router = express.Router();
 
 const mongoose = require('mongoose');
 
+const cloudinary = require('cloudinary').v2;
 
 const Group = require('../models/groupSchema');
 const User = require('../models/userSchema');
@@ -216,14 +217,40 @@ router.post('/chatbox', (req, res)=>
 	}
 });
 
-router.get('/messages/:id', async (req, res)=>
+router.get('/messages/:id', (req, res)=>
 {
 	if (req.session.logged)
 	{
-		let groupToEnter = await Group.findById(req.params.id).populate('messages');
-		let messages = await groupToEnter.messages;
-		//console.log(await messages);
-		res.render('retroWeb/messages.ejs', {messages: await messages, groupId: req.params.id})
+		Group.findById(req.params.id).populate('messages').exec((err, foundGroup)=>
+		{
+			let messages = foundGroup.messages;
+			for (let i = 0; i < messages.length; i++)
+			{
+				console.log(messages[i].image);
+				if (messages[i].image && messages[i].image != '')
+				{
+					if (messages[i].image.includes('cloudinary'))
+					{
+						//get the id from the url:
+						let id;
+						for (let j = messages[i].image.length; j > 0; j--)
+						{
+							if (messages[i].image[j] == '/')
+							{
+								//we've found the slash
+								id = messages[i].image.substr(j + 1, messages[i].image.length - j - 5);
+								break;
+							}
+						}
+						console.log("id");
+						console.log(id);
+						messages[i].image = cloudinary.url(id, {height: 480, crop: 'fit', format: 'jpg'});
+					}
+				}
+				//console.log(messages[i].image);
+			}
+			res.render('retroWeb/messages.ejs', {messages: messages, groupId: req.params.id})
+		});
 	}
 });
 
