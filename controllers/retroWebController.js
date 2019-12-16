@@ -224,7 +224,9 @@ router.get('/messages/:id', (req, res)=>
 		Group.findById(req.params.id).populate('messages').exec((err, foundGroup)=>
 		{
 			//Only get the last 25 messages to save bandwidth
-			let messages = foundGroup.messages.slice(foundGroup.messages.length - 25, foundGroup.messages.length);
+			let startmsg = foundGroup.messages.length - 25;
+			if (startmsg < 0) {startmsg = 0;}
+			let messages = foundGroup.messages.slice(startmsg, foundGroup.messages.length);
 			for (let i = 0; i < messages.length; i++)
 			{
 				console.log(messages[i].image);
