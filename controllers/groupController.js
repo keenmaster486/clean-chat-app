@@ -625,6 +625,7 @@ router.post('/:id/notify', (req, res) =>
 				}
 			}
 			foundGroup.save();
+			res.send(''); //send an empty string
 		}
 	});
 });
