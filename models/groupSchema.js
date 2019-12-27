@@ -13,12 +13,7 @@ const groupSchema = new Schema(
 	joinpolicy: {type: Number, required: true}, //join policy: 0=any, 1=request/invite, 2=invite only
 	allowinvite: {type: Boolean, required: true}, //whether to allow non-admins to invite other users
 	messages: [{type: Schema.Types.ObjectId, ref: 'Message'}], //array of Messages
-	usersMetaData: [
-	{
-		userId: String,
-		lastMsgLength: Number,
-		whetherChanged: Boolean
-	}]
+	usersMetaData: {type: Map, of: {lastMsgLength: Number, whetherChanged: Boolean, typing: Boolean, lastOnline: String}}
 });
 
 const Group = new mongoose.model('Group', groupSchema);

@@ -103,7 +103,8 @@ class ChatBox extends Component
 		});
 		groupInfo = await groupInfo.json();
 
-		
+		//console.log("got group info:")
+		//console.log(groupInfo);
 
 		this.setState(
 		{

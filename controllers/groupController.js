@@ -54,12 +54,16 @@ router.get('/', function(req, res)
 						};
 						if (group.usersMetaData)
 						{
-							for (let i = 0; i < group.usersMetaData.length; i++)
+							// for (let i = 0; i < group.usersMetaData.length; i++)
+							// {
+							// 	if (group.usersMetaData[i].userId == req.session.curuserid)
+							// 	{
+							// 		userMetaData = group.usersMetaData[i];
+							// 	}
+							// }
+							if (group.usersMetaData.get(req.session.curuserid))
 							{
-								if (group.usersMetaData[i].userId == req.session.curuserid)
-								{
-									userMetaData = group.usersMetaData[i];
-								}
+								userMetaData = group.usersMetaData.get(req.session.curuserid);
 							}
 						}
 						const singleGroupInfo =
@@ -113,12 +117,16 @@ router.get('/foruser/:userId', function(req, res)
 						};
 						if (foundGroups[i].usersMetaData)
 						{
-							for (let j = 0; j < foundGroups[i].usersMetaData.length; j++)
+							// for (let j = 0; j < foundGroups[i].usersMetaData.length; j++)
+							// {
+							// 	if (foundGroups[i].usersMetaData[j].userId == req.session.curuserid)
+							// 	{
+							// 		userMetaData = foundGroups[i].usersMetaData[j];
+							// 	}
+							// }
+							if (foundGroups[i].usersMetaData.get(req.session.curuserid))
 							{
-								if (foundGroups[i].usersMetaData[j].userId == req.session.curuserid)
-								{
-									userMetaData = foundGroups[i].usersMetaData[j];
-								}
+								userMetaData = foundGroups[i].usersMetaData.get(req.session.curuserid);
 							}
 						}
 						infoToSend.push(
@@ -179,12 +187,16 @@ router.get('/:id', function(req, res)
 				};
 				if (foundGroup.usersMetaData)
 				{
-					for (let i = 0; i < foundGroup.usersMetaData.length; i++)
+					// for (let i = 0; i < foundGroup.usersMetaData.length; i++)
+					// {
+					// 	if (foundGroup.usersMetaData[i].userId == req.session.curuserid)
+					// 	{
+					// 		userMetaData = foundGroup.usersMetaData[i];
+					// 	}
+					// }
+					if (foundGroup.usersMetaData.get(req.session.curuserid))
 					{
-						if (foundGroup.usersMetaData[i].userId == req.session.curuserid)
-						{
-							userMetaData = foundGroup.usersMetaData[i];
-						}
+						userMetaData = foundGroup.usersMetaData.get(req.session.curuserid);
 					}
 				}
 				const groupInfo =
@@ -348,12 +360,16 @@ router.get('/dms/:user1_id/:user2_id', (req, res) =>
 						};
 						if (foundGroup.usersMetaData)
 						{
-							for (let i = 0; i < foundGroup.usersMetaData.length; i++)
+							// for (let i = 0; i < foundGroup.usersMetaData.length; i++)
+							// {
+							// 	if (foundGroup.usersMetaData[i].userId == req.session.curuserid)
+							// 	{
+							// 		userMetaData = foundGroup.usersMetaData[i];
+							// 	}
+							// }
+							if (foundGroup.usersMetaData.get(req.session.curuserid))
 							{
-								if (foundGroup.usersMetaData[i].userId == req.session.curuserid)
-								{
-									userMetaData = foundGroup.usersMetaData[i];
-								}
+								userMetaData = foundGroup.usersMetaData.get(req.session.curuserid);
 							}
 						}
 						const infoToSend =
@@ -427,34 +443,60 @@ router.get('/:id/messages/:startmsg/:endmsg', function(req, res)
 					//set the user metadata:
 					if (foundGroup.usersMetaData)
 					{
-						let foundUserMetaData = false;
-						for (let i = 0; i < foundGroup.usersMetaData; i++)
+						// let foundUserMetaData = false;
+						// for (let i = 0; i < foundGroup.usersMetaData; i++)
+						// {
+						// 	if (foundGroup.usersMetaData[i].userId == req.session.curuserid)
+						// 	{
+						// 		foundGroup.usersMetaData[i].lastMsgLength = foundGroup.messages.length;
+						// 		foundGroup.usersMetaData[i].whetherChanged = false;
+						// 		foundUserMetaData = true;
+						// 	}
+						// }
+						// if (!foundUserMetaData)
+						// {
+						// 	foundGroup.usersMetaData.push(
+						// 	{
+						// 		userId: req.session.curuserid,
+						// 		lastMsgLength: foundGroup.messages.length,
+						// 		whetherChanged: false
+						// 	});
+						// }
+						console.log(foundGroup.usersMetaData);
+						const userMetaData = foundGroup.usersMetaData.get(req.session.curuserid);
+						if (userMetaData)
 						{
-							if (foundGroup.usersMetaData[i].userId == req.session.curuserid)
-							{
-								foundGroup.usersMetaData[i].lastMsgLength = foundGroup.messages.length;
-								foundGroup.usersMetaData[i].whetherChanged = false;
-								foundUserMetaData = true;
-							}
+							//foundGroup.usersMetaData[req.session.curuserid].lastMsgLength = foundGroup.messages.length;
+							//foundGroup.usersMetaData[req.session.curuserid].whetherChanged = false;
+							userMetaData.lastMsgLength = foundGroup.messages.length;
+							userMetaData.whetherChanged = false;
+							foundGroup.usersMetaData.set(req.session.curuserid, userMetaData);
 						}
-						if (!foundUserMetaData)
+						else
 						{
-							foundGroup.usersMetaData.push(
+							foundGroup.usersMetaData.set(req.session.curuserid,
 							{
-								userId: req.session.curuserid,
 								lastMsgLength: foundGroup.messages.length,
 								whetherChanged: false
 							});
 						}
+						console.log(foundGroup.usersMetaData);
 					}
 					else
 					{
-						foundGroup.usersMetaData = [
+						// foundGroup.usersMetaData = [
+						// {
+						// 	userId: req.session.curuserid,
+						// 	lastMsgLength: foundGroup.messages.length,
+						// 	whetherChanged: false
+						// }]
+
+						foundGroup.usersMetaData = new Map();
+						foundGroup.usersMetaData.set(req.session.curuserid,
 						{
-							userId: req.session.curuserid,
 							lastMsgLength: foundGroup.messages.length,
 							whetherChanged: false
-						}]
+						});
 					}
 					foundGroup.save();
 					res.json(foundGroup.messages.slice(req.params.startmsg, req.params.endmsg));
@@ -476,7 +518,7 @@ router.post('/:id/messages', function(req, res)
 
 	if (!req.session.logged || req.session.curuserid != req.body.userId)
 	{
-		req.json(
+		res.json(
 		{
 			success: false,
 			message: "Permission denied!"
@@ -519,9 +561,16 @@ router.post('/:id/messages', function(req, res)
 								//Set the user metadata:
 								if (updatedGroup.usersMetaData)
 								{
-									for (let i = 0; i < updatedGroup.usersMetaData.length; i++)
+									// for (let i = 0; i < updatedGroup.usersMetaData.length; i++)
+									// {
+									// 	updatedGroup.usersMetaData[i].whetherChanged = true;
+									// }
+									const userMetaData = updatedGroup.usersMetaData.get(req.session.curuserid);
+									if (userMetaData)
 									{
-										updatedGroup.usersMetaData[i].whetherChanged = true;
+										userMetaData.whetherChanged = true;
+										//updatedGroup.usersMetaData[req.session.curuserid].whetherChanged = true;
+										updatedGroup.usersMetaData.set(req.session.curuserid, userMetaData);
 									}
 								}
 								updatedGroup.save();
@@ -562,9 +611,16 @@ router.post('/:id/notify', (req, res) =>
 		{
 			if (foundGroup.usersMetaData)
 			{
-				for (let i = 0; i < foundGroup.usersMetaData.length; i++)
+				// for (let i = 0; i < foundGroup.usersMetaData.length; i++)
+				// {
+				// 	foundGroup.usersMetaData[i].whetherChanged = true;
+				// }
+				const userMetaData = foundGroup.usersMetaData.get(req.session.curuserid);
+				if (userMetaData)
 				{
-					foundGroup.usersMetaData[i].whetherChanged = true;
+					//foundGroup.usersMetaData[req.session.curuserid].whetherChanged = true;
+					userMetaData.whetherChanged = true;
+					foundGroup.usersMetaData.set(req.session.curuserid, userMetaData);
 				}
 			}
 			foundGroup.save();
@@ -584,7 +640,7 @@ router.post('/:id/messages/uploadImage', (req, res) =>
 
 	if (!req.session.logged || req.session.curuserid != req.body.userId)
 	{
-		req.json(
+		res.json(
 		{
 			success: false,
 			message: "Permission denied!"
@@ -631,9 +687,16 @@ router.post('/:id/messages/uploadImage', (req, res) =>
 								//Set the user metadata:
 								if (updatedGroup.usersMetaData)
 								{
-									for (let i = 0; i < updatedGroup.usersMetaData.length; i++)
+									// for (let i = 0; i < updatedGroup.usersMetaData.length; i++)
+									// {
+									// 	updatedGroup.usersMetaData[i].whetherChanged = true;
+									// }
+									const userMetaData = updatedGroup.usersMetaData.get(req.session.curuserid);
+									if (userMetaData)
 									{
-										updatedGroup.usersMetaData[i].whetherChanged = true;
+										//updatedGroup.usersMetaData[req.session.curuserid].whetherChanged = true;
+										userMetaData.whetherChanged = true;
+										updatedGroup.usersMetaData.set(req.session.curuserid, userMetaData);
 									}
 								}
 								updatedGroup.save();
@@ -689,7 +752,7 @@ router.put('/:id/messages', function(req, res)
 
 	if (!req.session.logged || req.session.curuserid != req.body.userId)
 	{
-		req.json(
+		res.json(
 		{
 			success: false,
 			message: "Permission denied!"
@@ -729,9 +792,16 @@ router.put('/:id/messages', function(req, res)
 							//Set the user metadata:
 							if (foundGroup.usersMetaData)
 							{
-								for (let i = 0; i < foundGroup.usersMetaData.length; i++)
+								// for (let i = 0; i < foundGroup.usersMetaData.length; i++)
+								// {
+								// 	foundGroup.usersMetaData[i].whetherChanged = true;
+								// }
+								const userMetaData = foundGroup.usersMetaData.get(req.session.curuserid);
+								if (userMetaData)
 								{
-									foundGroup.usersMetaData[i].whetherChanged = true;
+									//foundGroup.usersMetaData[req.session.curuserid].whetherChanged = true;
+									userMetaData.whetherChanged = true;
+									foundGroup.usersMetaData.set(req.session.curuserid, userMetaData);
 								}
 							}
 							foundGroup.save();
@@ -804,9 +874,16 @@ router.delete('/:id/messages', function(req, res)
 										//Set the user metadata:
 										if (foundGroup.usersMetaData)
 										{
-											for (let i = 0; i < foundGroup.usersMetaData.length; i++)
+											// for (let i = 0; i < foundGroup.usersMetaData.length; i++)
+											// {
+											// 	foundGroup.usersMetaData[i].whetherChanged = true;
+											// }
+											const userMetaData = foundGroup.usersMetaData.get(req.session.curuserid);
+											if (userMetaData)
 											{
-												foundGroup.usersMetaData[i].whetherChanged = true;
+												//foundGroup.usersMetaData[req.session.curuserid].whetherChanged = true;
+												userMetaData.whetherChanged = true;
+												foundGroup.usersMetaData.set(req.session.curuserid, userMetaData);
 											}
 										}
 										console.log("removed a message");
