@@ -565,13 +565,18 @@ router.post('/:id/messages', function(req, res)
 									// {
 									// 	updatedGroup.usersMetaData[i].whetherChanged = true;
 									// }
-									const userMetaData = updatedGroup.usersMetaData.get(req.session.curuserid);
-									if (userMetaData)
+									for (let [key, value] of updatedGroup.usersMetaData)
 									{
-										userMetaData.whetherChanged = true;
-										//updatedGroup.usersMetaData[req.session.curuserid].whetherChanged = true;
-										updatedGroup.usersMetaData.set(req.session.curuserid, userMetaData);
+										value.whetherChanged = true;
+										updatedGroup.usersMetaData.set(key, value);
 									}
+									// const userMetaData = updatedGroup.usersMetaData.get(req.session.curuserid);
+									// if (userMetaData)
+									// {
+									// 	userMetaData.whetherChanged = true;
+									// 	//updatedGroup.usersMetaData[req.session.curuserid].whetherChanged = true;
+									// 	updatedGroup.usersMetaData.set(req.session.curuserid, userMetaData);
+									// }
 								}
 								updatedGroup.save();
 								if (req.body.retro)
@@ -615,16 +620,22 @@ router.post('/:id/notify', (req, res) =>
 				// {
 				// 	foundGroup.usersMetaData[i].whetherChanged = true;
 				// }
-				const userMetaData = foundGroup.usersMetaData.get(req.session.curuserid);
-				if (userMetaData)
+				for (let [key, value] of foundGroup.usersMetaData)
 				{
-					//foundGroup.usersMetaData[req.session.curuserid].whetherChanged = true;
-					userMetaData.whetherChanged = true;
-					foundGroup.usersMetaData.set(req.session.curuserid, userMetaData);
-					console.log("==============NOTIFY ROUTE HIT===============");
+					value.whetherChanged = true;
+					foundGroup.usersMetaData.set(key, value);
 				}
+				// const userMetaData = foundGroup.usersMetaData.get(req.session.curuserid);
+				// if (userMetaData)
+				// {
+				// 	//foundGroup.usersMetaData[req.session.curuserid].whetherChanged = true;
+				// 	userMetaData.whetherChanged = true;
+				// 	foundGroup.usersMetaData.set(req.session.curuserid, userMetaData);
+				// 	
+				// }
 			}
 			foundGroup.save();
+			console.log("==============NOTIFY ROUTE HIT===============");
 			res.send(''); //send an empty string
 		}
 	});
@@ -693,13 +704,19 @@ router.post('/:id/messages/uploadImage', (req, res) =>
 									// {
 									// 	updatedGroup.usersMetaData[i].whetherChanged = true;
 									// }
-									const userMetaData = updatedGroup.usersMetaData.get(req.session.curuserid);
-									if (userMetaData)
+
+									for (let [key, value] of updatedGroup.usersMetaData)
 									{
-										//updatedGroup.usersMetaData[req.session.curuserid].whetherChanged = true;
-										userMetaData.whetherChanged = true;
-										updatedGroup.usersMetaData.set(req.session.curuserid, userMetaData);
+										value.whetherChanged = true;
+										updatedGroup.usersMetaData.set(key, value);
 									}
+									// const userMetaData = updatedGroup.usersMetaData.get(req.session.curuserid);
+									// if (userMetaData)
+									// {
+									// 	//updatedGroup.usersMetaData[req.session.curuserid].whetherChanged = true;
+									// 	userMetaData.whetherChanged = true;
+									// 	updatedGroup.usersMetaData.set(req.session.curuserid, userMetaData);
+									// }
 								}
 								updatedGroup.save();
 
@@ -798,13 +815,18 @@ router.put('/:id/messages', function(req, res)
 								// {
 								// 	foundGroup.usersMetaData[i].whetherChanged = true;
 								// }
-								const userMetaData = foundGroup.usersMetaData.get(req.session.curuserid);
-								if (userMetaData)
+								for (let [key, value] of foundGroup.usersMetaData)
 								{
-									//foundGroup.usersMetaData[req.session.curuserid].whetherChanged = true;
-									userMetaData.whetherChanged = true;
-									foundGroup.usersMetaData.set(req.session.curuserid, userMetaData);
+									value.whetherChanged = true;
+									foundGroup.usersMetaData.set(key, value);
 								}
+								// const userMetaData = foundGroup.usersMetaData.get(req.session.curuserid);
+								// if (userMetaData)
+								// {
+								// 	//foundGroup.usersMetaData[req.session.curuserid].whetherChanged = true;
+								// 	userMetaData.whetherChanged = true;
+								// 	foundGroup.usersMetaData.set(req.session.curuserid, userMetaData);
+								// }
 							}
 							foundGroup.save();
 						});
@@ -880,13 +902,18 @@ router.delete('/:id/messages', function(req, res)
 											// {
 											// 	foundGroup.usersMetaData[i].whetherChanged = true;
 											// }
-											const userMetaData = foundGroup.usersMetaData.get(req.session.curuserid);
-											if (userMetaData)
+											for (let [key, value] of foundGroup.usersMetaData)
 											{
-												//foundGroup.usersMetaData[req.session.curuserid].whetherChanged = true;
-												userMetaData.whetherChanged = true;
-												foundGroup.usersMetaData.set(req.session.curuserid, userMetaData);
+												value.whetherChanged = true;
+												foundGroup.usersMetaData.set(key, value);
 											}
+											// const userMetaData = foundGroup.usersMetaData.get(req.session.curuserid);
+											// if (userMetaData)
+											// {
+											// 	//foundGroup.usersMetaData[req.session.curuserid].whetherChanged = true;
+											// 	userMetaData.whetherChanged = true;
+											// 	foundGroup.usersMetaData.set(req.session.curuserid, userMetaData);
+											// }
 										}
 										console.log("removed a message");
 										break;
