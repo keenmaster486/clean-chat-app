@@ -621,6 +621,7 @@ router.post('/:id/notify', (req, res) =>
 					//foundGroup.usersMetaData[req.session.curuserid].whetherChanged = true;
 					userMetaData.whetherChanged = true;
 					foundGroup.usersMetaData.set(req.session.curuserid, userMetaData);
+					console.log("==============NOTIFY ROUTE HIT===============");
 				}
 			}
 			foundGroup.save();
