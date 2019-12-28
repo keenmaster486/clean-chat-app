@@ -332,20 +332,34 @@ router.get('/dms/:user1_id/:user2_id', (req, res) =>
 							}
 						});
 
-						//Add the users to each others' contacts lists:
+						//Add the users to each others' contacts lists if they're not already there:
 
-						foundUser1.contacts.push(
-						{
+						if (!foundUser1.contacts.includes({
 							_id: foundUser2._id,
 							username: foundUser2.username,
 							displayname: foundUser2.displayname
-						});
-						foundUser2.contacts.push(
+						}))
 						{
+							foundUser1.contacts.push(
+							{
+								_id: foundUser2._id,
+								username: foundUser2.username,
+								displayname: foundUser2.displayname
+							});
+						}
+						if (!foundUser2.contacts.includes({
 							_id: foundUser1._id,
 							username: foundUser1.username,
 							displayname: foundUser1.displayname
-						});
+						}))
+						{
+							foundUser2.contacts.push(
+							{
+								_id: foundUser1._id,
+								username: foundUser1.username,
+								displayname: foundUser1.displayname
+							});
+						}
 						foundUser1.save();
 						foundUser2.save();
 					}

@@ -184,7 +184,25 @@ router.get('/:id/contacts', function(req, res)
 			{
 				console.log(`GET /users/${req.params.id}/contacts`);
 				//res.send(`GET /users/${req.params.id}`);
-				res.json(foundUser.contacts);
+
+				//Check for and remove duplicates:
+				//(basically create a new array but only add if not already there)
+
+				const newContacts = [];
+
+				foundUser.contacts.forEach((contact, index)=>
+				{
+					if (!newContacts.includes({_id: contact._id, username: contact.username, displayname: contact.displayname}))
+					{
+						newContacts.push(contact);
+					}
+				});
+
+				foundUser.contacts = newContacts;
+
+				foundUser.save();
+
+				res.json(newContacts);
 			}
 		});
 	}
