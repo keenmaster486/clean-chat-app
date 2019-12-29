@@ -192,7 +192,7 @@ router.get('/:id/contacts', function(req, res)
 
 				foundUser.contacts.forEach((contact, index)=>
 				{
-					if (!newContacts.includes({_id: contact._id, username: contact.username, displayname: contact.displayname}))
+					if (!newContacts.includes(contact))
 					{
 						newContacts.push(contact);
 					}
